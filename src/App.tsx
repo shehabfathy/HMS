@@ -4,6 +4,7 @@ function App() {
   return (
     <>
       <Toaster position="top-right" />
+
       <Register />
     </>
   );
