@@ -83,15 +83,20 @@ export default function Register() {
     <>
       <Box
         sx={{
-          padding: "15px",
-          height: "100vh",
-          overflow: "auto",
           display: "flex",
-          justifyContent: "space-between",
+          // both sides stretch equally
+          minHeight: "100vh",
         }}
         flexDirection={{ xs: "column", md: "row" }}
       >
-        <Box display="inline" width={{ xs: "100%", md: "50%" }}>
+        <Box
+          display="inline"
+          width={{ xs: "100%", md: "50%" }}
+          sx={{
+            p: 4,
+            overflowY: "auto", // only the form scrolls
+          }}
+        >
           <Typography
             mb="10px"
             component="span"
@@ -400,15 +405,26 @@ export default function Register() {
         </Box>
 
         <Box
-          textAlign={{ md: "right", xs: "center" }}
-          borderRadius={15}
-          width={{ md: "50%", xs: "100%" }}
+          width={{ xs: "100%", md: "50%" }}
+          sx={{
+            position: { md: "sticky" },
+            py: "10px",
+            top: { md: 0 },
+            height: { xs: "300px", md: "100vh" },
+            flexShrink: 0,
+            borderRadius: "15px",
+            textAlign: "center",
+          }}
         >
           <img
-            className="registImg"
-            style={{ width: "90% ", height: "100%", objectFit: "cover" }}
             src={registImg}
-            alt="registImg"
+            alt="Register"
+            style={{
+              width: "80%",
+              height: "100%",
+              objectFit: "cover",
+              margin: "auto",
+            }}
           />
         </Box>
       </Box>
