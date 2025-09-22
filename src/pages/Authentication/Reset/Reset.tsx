@@ -1,105 +1,135 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+// Import Material-UI components
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
 
-// 2. ResetPassword Component (The form)
+// Import Material-UI icons
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 const ResetPassword = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!confirmPasswordVisible);
+  };
+
   return (
-    <>
-      <h1 className="text-2xl font-bold text-blue-900">Staycation.</h1>
-      <div className="mt-8">
-        <h2 className="text-3xl font-bold text-gray-800">Reset Password</h2>
-        <p className="text-gray-500 mt-2">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+      }}
+    >
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{ fontWeight: "bold", color: "primary.main" }}
+      >
+        Staycation.
+      </Typography>
+
+      <Box sx={{ mt: 4, width: "100%" }}>
+        <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
+          Reset Password
+        </Typography>
+        <Typography color="text.secondary" sx={{ mt: 1 }}>
           Enter your new password details below.
-        </p>
-        <p className="text-gray-500">
+        </Typography>
+        <Typography color="text.secondary">
           Remembered it?{" "}
-          <Link to="/login" className="text-red-500 font-semibold">
+          <Link
+            component={RouterLink}
+            to="/login"
+            color="error"
+            sx={{ fontWeight: "semibold" }}
+          >
             Login here!
           </Link>
-        </p>
-      </div>
-      <form className="mt-8 space-y-6">
-        {/* OTP Input, etc. */}
-        <div>
-          <label htmlFor="otp" className="text-sm font-medium text-gray-700">
-            OTP
-          </label>
-          <input
-            type="text"
-            id="otp"
-            className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Please type here"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <div className="relative mt-1">
-            <input
-              type={passwordVisible ? "text" : "password"}
-              id="password"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Please type here"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setPasswordVisible(!passwordVisible)}
-            >
-              {passwordVisible ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-400" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
-          </div>
-        </div>
-        <div>
-          <label
-            htmlFor="confirm-password"
-            className="text-sm font-medium text-gray-700"
-          >
-            Confirm Password
-          </label>
-          <div className="relative mt-1">
-            <input
-              type={confirmPasswordVisible ? "text" : "password"}
-              id="confirm-password"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Please type here"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-            >
-              {confirmPasswordVisible ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-400" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
-          </div>
-        </div>
-        <div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Reset
-          </button>
-        </div>
-      </form>
-    </>
+        </Typography>
+      </Box>
+
+      <Box component="form" sx={{ mt: 3, width: "100%" }}>
+        <TextField
+          fullWidth
+          id="otp"
+          label="OTP"
+          variant="outlined"
+          margin="normal"
+          placeholder="Please type here"
+        />
+
+        <TextField
+          fullWidth
+          id="password"
+          label="Password"
+          type={passwordVisible ? "text" : "password"}
+          variant="outlined"
+          margin="normal"
+          placeholder="Please type here"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={togglePasswordVisibility}
+                  edge="end"
+                >
+                  {passwordVisible ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          fullWidth
+          id="confirm-password"
+          label="Confirm Password"
+          type={confirmPasswordVisible ? "text" : "password"}
+          variant="outlined"
+          margin="normal"
+          placeholder="Please type here"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle confirm password visibility"
+                  onClick={toggleConfirmPasswordVisibility}
+                  edge="end"
+                >
+                  {confirmPasswordVisible ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{ mt: 3, py: 1.5, fontWeight: "bold" }}
+        >
+          Reset
+        </Button>
+      </Box>
+    </Box>
   );
 };
 

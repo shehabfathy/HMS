@@ -1,14 +1,41 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+// Import Material-UI components
 import {
-  faSearch,
-  faEllipsisV,
-  faEye,
-  faEdit,
-  faTrash,
-  faTimes,
-  faUserCircle,
-} from "@fortawesome/free-solid-svg-icons";
+  Box,
+  Container,
+  Typography,
+  TextField,
+  InputAdornment,
+  Paper,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+  Avatar,
+} from "@mui/material";
+
+// Import Material-UI icons
+import {
+  Search as SearchIcon,
+  MoreVert as MoreVertIcon,
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 
 // --- Hardcoded Data for UI Mockup ---
 const mockUsers = [
@@ -55,168 +82,223 @@ const mockUsers = [
 ];
 
 // --- The UI Component ---
-export default function UsersListUI() {
-  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+export default function UsersListMUI() {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
+    null
+  );
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
 
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    bookingId: number
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedBookingId(bookingId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedBookingId(null);
+  };
+
+  const openDeleteModal = () => {
+    setDeleteModalOpen(true);
+    handleMenuClose();
+  };
+
+  const openUpdateModal = () => {
+    setUpdateModalOpen(true);
+    handleMenuClose();
+  };
+
   return (
-    <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto">
+    <Box sx={{ bgcolor: "grey.50", minHeight: "100vh", p: { xs: 2, sm: 3 } }}>
+      <Container maxWidth="lg">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            mb: 4,
+          }}
+        >
+          <Box>
+            <Typography variant="h5" component="h2" fontWeight="bold">
               Booking Table Details
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               You can check all details
-            </p>
-          </div>
-          <div className="relative mt-4 sm:mt-0 w-full sm:w-auto">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
-            </span>
-            <input
-              type="text"
-              className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Search..."
-            />
-          </div>
-        </div>
+            </Typography>
+          </Box>
+          <TextField
+            size="small"
+            placeholder="Search..."
+            variant="outlined"
+            sx={{ mt: { xs: 2, sm: 0 }, width: { xs: "100%", sm: 280 } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
 
         {/* Table */}
-        <div className="bg-white rounded-[15px] shadow-md overflow-x-auto">
-          <table className="w-full text-sm text-left text-gray-600">
-            <thead className="text-xs text-gray-700 uppercase bg-[#E2E5EB] ">
-              <tr>
-                <th scope="col" className="px-[30px] py-[30px] font-semibold">
-                  Room Number
-                </th>
-                <th scope="col" className=" font-semibold">
-                  Price
-                </th>
-                <th scope="col" className=" font-semibold">
-                  Start Date
-                </th>
-                <th scope="col" className=" font-semibold">
-                  End Date
-                </th>
-                <th scope="col" className=" font-semibold">
-                  User
-                </th>
-                <th scope="col" className=" font-semibold text-center">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockUsers.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="bg-white border-b last:border-b-0 hover:bg-gray-50"
-                >
-                  <td className="px-6 py-4 font-medium text-gray-800">
-                    {booking.roomNumber}
-                  </td>
-                  <td className="px-6 py-4">{booking.price}</td>
-                  <td className="px-6 py-4">{booking.startDate}</td>
-                  <td className="px-6 py-4">{booking.endDate}</td>
-                  <td className="px-6 py-4">{booking.user}</td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setOpenDropdownId(
-                            openDropdownId === booking.id ? null : booking.id
-                          )
-                        }
-                        className="text-blue-600 hover:text-blue-800"
+        <Paper sx={{ borderRadius: 4, overflow: "hidden" }} elevation={2}>
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }} aria-label="booking table">
+              <TableHead sx={{ bgcolor: "grey.200" }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>Room Number</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Start Date</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>End Date</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>User</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {mockUsers.map((booking) => (
+                  <TableRow
+                    key={booking.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    hover
+                  >
+                    <TableCell component="th" scope="row">
+                      {booking.roomNumber}
+                    </TableCell>
+                    <TableCell>{`$${booking.price}`}</TableCell>
+                    <TableCell>{booking.startDate}</TableCell>
+                    <TableCell>{booking.endDate}</TableCell>
+                    <TableCell>{booking.user}</TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        aria-label="actions"
+                        onClick={(event) => handleMenuOpen(event, booking.id)}
                       >
-                        <FontAwesomeIcon icon={faEye} /> View
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                        <MoreVertIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Container>
 
-      {/* Delete Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                <FontAwesomeIcon
-                  icon={faTrash}
-                  className="h-6 w-6 text-red-600"
-                />
-              </div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">
-                Delete Item
-              </h3>
-              <p className="text-sm text-gray-500 mt-2">
-                Are you sure you want to delete this item? This action cannot be
-                undone.
-              </p>
-            </div>
-            <div className="flex justify-center gap-4 mt-6">
-              <button
-                onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Yes, Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Actions Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem onClick={handleMenuClose}>
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          View Details
+        </MenuItem>
+        <MenuItem onClick={openUpdateModal}>
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          Edit
+        </MenuItem>
+        <MenuItem onClick={openDeleteModal} sx={{ color: "error.main" }}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          Delete
+        </MenuItem>
+      </Menu>
 
-      {/* Update Modal */}
-      {isUpdateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Update Item
-              </h3>
-              <button
-                onClick={() => setUpdateModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-            <div className="p-6">
-              <p>Update form fields would go here...</p>
-            </div>
-            <div className="flex justify-end gap-4 p-4 bg-gray-50 rounded-b-lg">
-              <button
-                type="button"
-                onClick={() => setUpdateModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Delete Dialog (Modal) */}
+      <Dialog
+        open={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+      >
+        <DialogTitle>Delete Booking</DialogTitle>
+        <DialogContent sx={{ textAlign: "center", p: 3 }}>
+          <Avatar sx={{ bgcolor: "error.light", mx: "auto", mb: 2 }}>
+            <DeleteIcon color="error" />
+          </Avatar>
+          <DialogContentText>
+            Are you sure you want to delete this booking? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteModalOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setDeleteModalOpen(false)}
+            variant="contained"
+            color="error"
+          >
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Update Dialog (Modal) */}
+      <Dialog
+        open={isUpdateModalOpen}
+        onClose={() => setUpdateModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Update Booking
+          <IconButton
+            aria-label="close"
+            onClick={() => setUpdateModalOpen(false)}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography>Update form fields would go here...</Typography>
+          {/* Example form fields */}
+          <TextField
+            margin="dense"
+            label="Room Number"
+            type="text"
+            fullWidth
+            variant="outlined"
+          />
+          <TextField
+            margin="dense"
+            label="Price"
+            type="number"
+            fullWidth
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setUpdateModalOpen(false)}>Cancel</Button>
+          <Button onClick={() => setUpdateModalOpen(false)} variant="contained">
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }
