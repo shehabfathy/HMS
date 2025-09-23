@@ -1,0 +1,21 @@
+// src/routes.ts
+export const ROUTES = {
+  ROOT: "/",
+  Landing_Page: "/landing-page",
+  LOGIN: "/login",
+  REGISTER: "/register",
+  FORGET_PASSWORD: "/forget-password",
+  RESET_PASSWORD: "/reset-password",
+  VERIFY_ACCOUNT: "/verify-account",
+  CHANGE_PASSWORD: "/change-password",
+  DASHBOARD: "/dashboard",
+  Rooms_List: "/rooms-list",
+  Rooms_Data: "/rooms-data",
+  Facilities_List: "/facilities-list",
+  Facilities_Data: "/facilities-data",
+  Ads_List: "/ads-list",
+  Ads_Data: "/ads-data",
+  Booking: "/booking",
+  Users: "/user",
+  PROFILE: "/profile",
+};

@@ -24,8 +24,9 @@ import {
 import Link from "@mui/material/Link";
 
 import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/lab/LoadingButton";
+// import Button from "@mui/lab/LoadingButton";
 import toast from "react-hot-toast";
+import { Button } from "@mui/material";
 export default function Register() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -135,7 +136,7 @@ export default function Register() {
             </Typography>
             <Typography component="p" mb={"15px"}>
               You can{" "}
-              <Link href="#" sx={{ textDecoration: "none", color: "red" }}>
+              <Link href="/login" sx={{ textDecoration: "none", color: "red" }}>
                 Login here !
               </Link>
             </Typography>

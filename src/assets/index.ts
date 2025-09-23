@@ -1,2 +1,5 @@
 import registImg from "../assets/Group 33.png";
 export { registImg };
+
+import loginImg from "../assets/login.png";
+export { loginImg };
