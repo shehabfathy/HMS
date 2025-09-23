@@ -50,7 +50,6 @@ interface IUser {
   // Add other fields from your API response as needed
 }
 
-<<<<<<< HEAD:src/pages/Users/UsersList.tsx
 // The UI Component
 export default function UsersList() {
   // State for API data, loading, and errors
@@ -64,10 +63,6 @@ export default function UsersList() {
   const [totalUsers, setTotalUsers] = useState(0);
 
   // State for menu and modals
-=======
-// --- The UI Component ---
-export default function Users() {
->>>>>>> 75d8dcf (fix bugs):src/pages/Users/Users.tsx
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);

@@ -12,12 +12,13 @@ import Dashboard from "./pages/DahBoard/Dashboard";
 import MasterLayout from "./shared/MasterLayout/MasterLayout";
 import Booking from "./pages/Booking/Booking";
 import Ads_List from "./pages/Ads/Ads_List/Ads_List";
-import Users from "./pages/Users/Users";
+
 import Ads_Data from "./pages/Ads/Ads_Data/Ads_Data";
 import Rooms_List from "./pages/Rooms/Rooms_List/Rooms_List";
 import Rooms_Data from "./pages/Rooms/Rooms_Data/Rooms_Data";
 import Facilities_List from "./pages/Facilities/Facilities_List/Facilities_List";
 import Facilities_Data from "./pages/Facilities/Facilities_Data/Facilities_Data";
+import UsersList from "./pages/Users/UsersList";
 
 function App() {
   const routes = createBrowserRouter([
@@ -41,7 +42,7 @@ function App() {
       errorElement: <NOtFound />,
       children: [
         { index: true, element: <Dashboard /> },
-        { path: ROUTES.Users.slice(1), element: <Users /> },
+        { path: ROUTES.Users.slice(1), element: <UsersList /> },
         { path: ROUTES.Ads_List.slice(1), element: <Ads_List /> },
         { path: ROUTES.Ads_Data.slice(1), element: <Ads_Data /> },
         { path: ROUTES.Rooms_List.slice(1), element: <Rooms_List /> },
