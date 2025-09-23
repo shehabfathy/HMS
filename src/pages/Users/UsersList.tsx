@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // Import Material-UI components
 import {
@@ -25,6 +26,8 @@ import {
   DialogTitle,
   Button,
   Avatar,
+  TablePagination,
+  CircularProgress,
 } from "@mui/material";
 
 // Import Material-UI icons
@@ -37,70 +40,78 @@ import {
   Close as CloseIcon,
 } from "@mui/icons-material";
 
-// --- Hardcoded Data for UI Mockup ---
-const mockUsers = [
-  {
-    id: 1,
-    roomNumber: "Room 1",
-    price: 500,
-    startDate: "01-01-2024",
-    endDate: "10-01-2024",
-    user: "UpSkilling",
-  },
-  {
-    id: 2,
-    roomNumber: "Single Room",
-    price: 500,
-    startDate: "01-01-2024",
-    endDate: "07-01-2024",
-    user: "Ahmed Mohamed",
-  },
-  {
-    id: 3,
-    roomNumber: "Double Rooms",
-    price: 500,
-    startDate: "01-01-2024",
-    endDate: "11-01-2024",
-    user: "UpSkilling",
-  },
-  {
-    id: 4,
-    roomNumber: "Double Rooms",
-    price: 500,
-    startDate: "01-01-2024",
-    endDate: "15-01-2024",
-    user: "UpSkilling",
-  },
-  {
-    id: 5,
-    roomNumber: "Double Rooms",
-    price: 900,
-    startDate: "01-01-2024",
-    endDate: "02-01-2024",
-    user: "UpSkilling",
-  },
-];
+// Define an interface for the user data from the API
+interface IUser {
+  _id: string;
+  userName: string;
+  email: string;
+  isVerified: boolean;
+  role: string;
+  // Add other fields from your API response as needed
+}
 
-// --- The UI Component ---
-export default function UsersListMUI() {
+// The UI Component
+export default function UsersList() {
+  // State for API data, loading, and errors
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for pagination
+  const [page, setPage] = useState(0); // MUI TablePagination is 0-indexed
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  // State for menu and modals
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
-    null
-  );
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
 
+  // Fetch users from the API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // API uses 1-based index for page, so we add 1
+        const response = await axios.get(
+          `https://upskilling-egypt.com:3000/api/v0/admin/users`,
+          {
+            params: {
+              page: page + 1,
+              size: rowsPerPage,
+            },
+          }
+        );
+        setUsers(response.data.data);
+        setTotalUsers(response.data.totalCount);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Failed to fetch users.");
+        } else {
+          setError("An unexpected error occurred.");
+        }
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [page, rowsPerPage]);
+
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
-    bookingId: number
+    userId: string
   ) => {
     setAnchorEl(event.currentTarget);
-    setSelectedBookingId(bookingId);
+    setSelectedUserId(userId);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedBookingId(null);
+    setSelectedUserId(null);
   };
 
   const openDeleteModal = () => {
@@ -111,6 +122,17 @@ export default function UsersListMUI() {
   const openUpdateModal = () => {
     setUpdateModalOpen(true);
     handleMenuClose();
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to the first page
   };
 
   return (
@@ -128,10 +150,10 @@ export default function UsersListMUI() {
         >
           <Box>
             <Typography variant="h5" component="h2" fontWeight="bold">
-              Booking Table Details
+              User Table Details
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              You can check all details
+              You can check all user details
             </Typography>
           </Box>
           <TextField
@@ -152,46 +174,71 @@ export default function UsersListMUI() {
         {/* Table */}
         <Paper sx={{ borderRadius: 4, overflow: "hidden" }} elevation={2}>
           <TableContainer>
-            <Table sx={{ minWidth: 650 }} aria-label="booking table">
+            <Table sx={{ minWidth: 650 }} aria-label="user table">
               <TableHead sx={{ bgcolor: "grey.200" }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Room Number</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Start Date</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>End Date</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>User</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Verified</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
                   <TableCell align="center" sx={{ fontWeight: "bold" }}>
                     Actions
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {mockUsers.map((booking) => (
-                  <TableRow
-                    key={booking.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    hover
-                  >
-                    <TableCell component="th" scope="row">
-                      {booking.roomNumber}
-                    </TableCell>
-                    <TableCell>{`$${booking.price}`}</TableCell>
-                    <TableCell>{booking.startDate}</TableCell>
-                    <TableCell>{booking.endDate}</TableCell>
-                    <TableCell>{booking.user}</TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        aria-label="actions"
-                        onClick={(event) => handleMenuOpen(event, booking.id)}
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                      <CircularProgress />
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : error ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      align="center"
+                      sx={{ color: "error.main" }}
+                    >
+                      {error}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map((user) => (
+                    <TableRow
+                      key={user._id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      hover
+                    >
+                      <TableCell component="th" scope="row">
+                        {user.userName}
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.isVerified ? "Yes" : "No"}</TableCell>
+                      <TableCell>{user.role}</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          aria-label="actions"
+                          onClick={(event) => handleMenuOpen(event, user._id)}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={totalUsers}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Paper>
       </Container>
 
@@ -228,13 +275,13 @@ export default function UsersListMUI() {
         open={isDeleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
       >
-        <DialogTitle>Delete Booking</DialogTitle>
+        <DialogTitle>Delete User</DialogTitle>
         <DialogContent sx={{ textAlign: "center", p: 3 }}>
           <Avatar sx={{ bgcolor: "error.light", mx: "auto", mb: 2 }}>
             <DeleteIcon color="error" />
           </Avatar>
           <DialogContentText>
-            Are you sure you want to delete this booking? This action cannot be
+            Are you sure you want to delete this user? This action cannot be
             undone.
           </DialogContentText>
         </DialogContent>
@@ -260,7 +307,7 @@ export default function UsersListMUI() {
         fullWidth
       >
         <DialogTitle>
-          Update Booking
+          Update User
           <IconButton
             aria-label="close"
             onClick={() => setUpdateModalOpen(false)}
@@ -276,18 +323,17 @@ export default function UsersListMUI() {
         </DialogTitle>
         <DialogContent dividers>
           <Typography>Update form fields would go here...</Typography>
-          {/* Example form fields */}
           <TextField
             margin="dense"
-            label="Room Number"
+            label="Username"
             type="text"
             fullWidth
             variant="outlined"
           />
           <TextField
             margin="dense"
-            label="Price"
-            type="number"
+            label="Email"
+            type="email"
             fullWidth
             variant="outlined"
           />

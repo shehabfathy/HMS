@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import axios from "axios";
 
 // Import Material-UI components
 import {
@@ -14,10 +16,32 @@ import {
 
 // Import Material-UI icons
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import type { ReactNode } from "react";
+
+// Define a type for our form data for better type safety
+interface IFormData {
+  email: string;
+  seed: string;
+  password: string;
+  confirmPassword: string;
+}
 
 const ResetPassword = () => {
+  const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  // Use React Hook Form to manage form state and validation
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<IFormData>();
+
+  // Watch the password field to compare for confirmation
+  const password = watch("password");
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -25,6 +49,40 @@ const ResetPassword = () => {
 
   const toggleConfirmPasswordVisibility = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
+  };
+
+  // Define the function that will be called on form submission
+  const onSubmit = async (data: IFormData) => {
+    try {
+      // API endpoint URL
+      const url =
+        "https://upskilling-egypt.com:3000/api/v0/admin/users/reset-password";
+
+      // Make the API POST request with Axios
+      const response = await axios.post(url, data);
+
+      // Log the successful response and show a success message
+      console.log("Success:", response.data);
+      alert("Password has been reset successfully!");
+
+      // Reset the form and navigate to login
+      reset();
+      navigate("/login");
+    } catch (error) {
+      // Type-safe error handling
+      if (axios.isAxiosError(error)) {
+        const apiError =
+          error.response?.data?.message || "An API error occurred";
+        console.error("API Error:", apiError);
+        alert(`Failed to reset password: ${apiError}`);
+      } else if (error instanceof Error) {
+        console.error("Generic Error:", error.message);
+        alert(`Failed to reset password: ${error.message}`);
+      } else {
+        console.error("An unexpected error occurred:", error);
+        alert("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   return (
@@ -63,24 +121,47 @@ const ResetPassword = () => {
         </Typography>
       </Box>
 
-      <Box component="form" sx={{ mt: 3, width: "100%" }}>
+      <Box
+        component="form"
+        sx={{ mt: 3, width: "100%" }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <TextField
+          fullWidth
+          id="email"
+          label="Email"
+          variant="outlined"
+          margin="normal"
+          placeholder="Enter your email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Invalid email address",
+            },
+          })}
+          error={!!errors.email}
+          helperText={errors.email?.message as ReactNode}
+        />
         <TextField
           fullWidth
           id="otp"
           label="OTP"
           variant="outlined"
           margin="normal"
-          placeholder="Please type here"
+          placeholder="Enter the OTP from your email"
+          {...register("seed", { required: "OTP is required" })}
+          error={!!errors.seed}
+          helperText={errors.seed?.message as ReactNode}
         />
-
         <TextField
           fullWidth
           id="password"
-          label="Password"
+          label="New Password"
           type={passwordVisible ? "text" : "password"}
           variant="outlined"
           margin="normal"
-          placeholder="Please type here"
+          placeholder="Enter new password"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -94,16 +175,18 @@ const ResetPassword = () => {
               </InputAdornment>
             ),
           }}
+          {...register("password", { required: "Password is required" })}
+          error={!!errors.password}
+          helperText={errors.password?.message as ReactNode}
         />
-
         <TextField
           fullWidth
           id="confirm-password"
-          label="Confirm Password"
+          label="Confirm New Password"
           type={confirmPasswordVisible ? "text" : "password"}
           variant="outlined"
           margin="normal"
-          placeholder="Please type here"
+          placeholder="Confirm new password"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -117,6 +200,13 @@ const ResetPassword = () => {
               </InputAdornment>
             ),
           }}
+          {...register("confirmPassword", {
+            required: "Please confirm your password",
+            validate: (value) =>
+              value === password || "The passwords do not match",
+          })}
+          error={!!errors.confirmPassword}
+          helperText={errors.confirmPassword?.message as ReactNode}
         />
 
         <Button
@@ -125,8 +215,9 @@ const ResetPassword = () => {
           variant="contained"
           size="large"
           sx={{ mt: 3, py: 1.5, fontWeight: "bold" }}
+          disabled={isSubmitting}
         >
-          Reset
+          {isSubmitting ? "Resetting..." : "Reset Password"}
         </Button>
       </Box>
     </Box>
