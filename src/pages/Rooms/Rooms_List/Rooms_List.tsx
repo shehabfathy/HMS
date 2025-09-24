@@ -18,7 +18,6 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Avatar,
   TextField,
   InputAdornment,
   Box,
@@ -121,23 +120,7 @@ export default function RoomsList() {
 
   // Content for the header: search bar and "Add New" button
   const headerContent = (
-    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-      <TextField
-        size="small"
-        placeholder="Search..."
-        variant="outlined"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon color="action" />
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Button variant="contained" startIcon={<AddIcon />}>
-        Add New Room
-      </Button>
-    </Box>
+    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}></Box>
   );
 
   return (
