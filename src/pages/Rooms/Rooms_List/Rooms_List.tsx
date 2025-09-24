@@ -18,8 +18,6 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  TextField,
-  InputAdornment,
   Box,
 } from "@mui/material";
 
@@ -27,8 +25,6 @@ import {
 import {
   MoreVert as MoreVertIcon,
   Delete as DeleteIcon,
-  Search as SearchIcon,
-  Add as AddIcon,
 } from "@mui/icons-material";
 
 // Import types from the central interfaces file
