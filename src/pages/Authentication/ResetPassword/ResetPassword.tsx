@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-
-// Import Material-UI components
 import {
   Box,
   Typography,
@@ -12,75 +10,51 @@ import {
   Link,
   IconButton,
   InputAdornment,
+  FormHelperText,
 } from "@mui/material";
-
-// Import Material-UI icons
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import type { ReactNode } from "react";
-
-// Define a type for our form data for better type safety
-interface IFormData {
-  email: string;
-  seed: string;
-  password: string;
-  confirmPassword: string;
-}
+import toast from "react-hot-toast";
+import type { TResetUser } from "../../../types/types";
+import { resetImg } from "../../../assets";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  // Use React Hook Form to manage form state and validation
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<IFormData>();
+  } = useForm<TResetUser>();
 
-  // Watch the password field to compare for confirmation
   const password = watch("password");
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setConfirmPasswordVisible(!confirmPasswordVisible);
-  };
-
-  // Define the function that will be called on form submission
-  const onSubmit = async (data: IFormData) => {
+  const onSubmit = async (data: TResetUser) => {
     try {
-      // API endpoint URL
       const url =
         "https://upskilling-egypt.com:3000/api/v0/admin/users/reset-password";
 
-      // Make the API POST request with Axios
-      const response = await axios.post(url, data);
+      await axios.post(url, data);
 
-      // Log the successful response and show a success message
-      console.log("Success:", response.data);
-      alert("Password has been reset successfully!");
-
-      // Reset the form and navigate to login
+      toast.success("✅ Password has been reset successfully!", {
+        duration: 3000,
+      });
       reset();
       navigate("/login");
     } catch (error) {
-      // Type-safe error handling
       if (axios.isAxiosError(error)) {
         const apiError =
           error.response?.data?.message || "An API error occurred";
-        console.error("API Error:", apiError);
-        alert(`Failed to reset password: ${apiError}`);
+        toast.error(apiError);
       } else if (error instanceof Error) {
-        console.error("Generic Error:", error.message);
-        alert(`Failed to reset password: ${error.message}`);
+        toast.error(error.message);
       } else {
-        console.error("An unexpected error occurred:", error);
-        alert("An unexpected error occurred. Please try again.");
+        toast.error("An unexpected error occurred. Please try again.");
       }
     }
   };
@@ -89,136 +63,194 @@ const ResetPassword = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
+        minHeight: "100vh",
       }}
+      flexDirection={{ xs: "column", md: "row" }}
     >
-      <Typography
-        variant="h5"
-        component="h1"
-        sx={{ fontWeight: "bold", color: "primary.main" }}
-      >
-        Staycation.
-      </Typography>
-
-      <Box sx={{ mt: 4, width: "100%" }}>
-        <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
-          Reset Password
-        </Typography>
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
-          Enter your new password details below.
-        </Typography>
-        <Typography color="text.secondary">
-          Remembered it?{" "}
-          <Link
-            component={RouterLink}
-            to="/login"
-            color="error"
-            sx={{ fontWeight: "semibold" }}
+      {/* Left Side - Form */}
+      <Box width={{ xs: "100%", md: "50%" }} sx={{ p: 4, overflowY: "auto" }}>
+        <Typography
+          mb="10px"
+          component="span"
+          fontWeight="500"
+          variant="body1"
+          fontSize="26px"
+          sx={{ color: "rgba(21, 44, 91, 1)" }}
+        >
+          Stay
+          <Typography
+            fontWeight="500"
+            fontSize="26px"
+            component="span"
+            variant="body1"
+            sx={{ color: "#000" }}
           >
-            Login here!
-          </Link>
+            cation
+          </Typography>
         </Typography>
+
+        <Box
+          component="form"
+          p={5}
+          autoComplete="off"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Typography component="h3" fontWeight={500} fontSize="30px" mb="15px">
+            Reset Password
+          </Typography>
+          <Typography component="span">
+            Enter your new password details below.
+          </Typography>
+          <Typography component="p" mb="15px">
+            Remembered it?{" "}
+            <Link
+              component={RouterLink}
+              to="/login"
+              sx={{ textDecoration: "none", color: "red" }}
+            >
+              Login here!
+            </Link>
+          </Typography>
+
+          {/* Email */}
+          <Box mb="20px">
+            <TextField
+              {...register("email")}
+              id="email"
+              label="Email"
+              type="email"
+              value={state}
+              placeholder="Please type here..."
+              variant="filled"
+              fullWidth
+              aria-readonly
+            />
+          </Box>
+
+          {/* OTP */}
+          <Box mb="20px">
+            <TextField
+              {...register("seed", { required: "OTP is required" })}
+              id="otp"
+              label="OTP"
+              placeholder="Enter the OTP from your email"
+              variant="filled"
+              fullWidth
+            />
+            {errors.seed && (
+              <FormHelperText sx={{ color: "red", fontSize: "13px" }}>
+                {errors.seed.message as ReactNode}
+              </FormHelperText>
+            )}
+          </Box>
+
+          {/* New Password */}
+          <Box mb="20px">
+            <TextField
+              {...register("password", { required: "Password is required" })}
+              id="password"
+              label="New Password"
+              autoComplete="new-password"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="Enter new password"
+              variant="filled"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setPasswordVisible(!passwordVisible)}
+                      edge="end"
+                    >
+                      {passwordVisible ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {errors.password && (
+              <FormHelperText sx={{ color: "red", fontSize: "13px" }}>
+                {errors.password.message as ReactNode}
+              </FormHelperText>
+            )}
+          </Box>
+
+          {/* Confirm Password */}
+          <Box mb="30px">
+            <TextField
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
+                validate: (value) =>
+                  value === password || "The passwords do not match",
+              })}
+              id="confirm-password"
+              label="Confirm Password"
+              type={confirmPasswordVisible ? "text" : "password"}
+              placeholder="Confirm new password"
+              variant="filled"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() =>
+                        setConfirmPasswordVisible(!confirmPasswordVisible)
+                      }
+                      edge="end"
+                    >
+                      {confirmPasswordVisible ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {errors.confirmPassword && (
+              <FormHelperText sx={{ color: "red", fontSize: "13px" }}>
+                {errors.confirmPassword.message as ReactNode}
+              </FormHelperText>
+            )}
+          </Box>
+
+          {/* Submit Button */}
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            disabled={isSubmitting}
+            sx={{ mb: "10px" }}
+          >
+            {isSubmitting ? "Resetting..." : "Reset Password"}
+          </Button>
+        </Box>
       </Box>
 
+      {/* Right Side - Image */}
       <Box
-        component="form"
-        sx={{ mt: 3, width: "100%" }}
-        onSubmit={handleSubmit(onSubmit)}
+        width={{ xs: "100%", md: "50%" }}
+        sx={{
+          position: { md: "sticky" },
+          py: "10px",
+          top: { md: 0 },
+          height: { xs: "300px", md: "100vh" },
+          flexShrink: 0,
+          borderRadius: "15px",
+          textAlign: "center",
+        }}
       >
-        <TextField
-          fullWidth
-          id="email"
-          label="Email"
-          variant="outlined"
-          margin="normal"
-          placeholder="Enter your email"
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
-            },
-          })}
-          error={!!errors.email}
-          helperText={errors.email?.message as ReactNode}
-        />
-        <TextField
-          fullWidth
-          id="otp"
-          label="OTP"
-          variant="outlined"
-          margin="normal"
-          placeholder="Enter the OTP from your email"
-          {...register("seed", { required: "OTP is required" })}
-          error={!!errors.seed}
-          helperText={errors.seed?.message as ReactNode}
-        />
-        <TextField
-          fullWidth
-          id="password"
-          label="New Password"
-          type={passwordVisible ? "text" : "password"}
-          variant="outlined"
-          margin="normal"
-          placeholder="Enter new password"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={togglePasswordVisibility}
-                  edge="end"
-                >
-                  {passwordVisible ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
+        <img
+          src={resetImg}
+          alt="reset password"
+          style={{
+            width: "80%",
+            height: "100%",
+            objectFit: "cover",
+            margin: "auto",
           }}
-          {...register("password", { required: "Password is required" })}
-          error={!!errors.password}
-          helperText={errors.password?.message as ReactNode}
         />
-        <TextField
-          fullWidth
-          id="confirm-password"
-          label="Confirm New Password"
-          type={confirmPasswordVisible ? "text" : "password"}
-          variant="outlined"
-          margin="normal"
-          placeholder="Confirm new password"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle confirm password visibility"
-                  onClick={toggleConfirmPasswordVisibility}
-                  edge="end"
-                >
-                  {confirmPasswordVisible ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          {...register("confirmPassword", {
-            required: "Please confirm your password",
-            validate: (value) =>
-              value === password || "The passwords do not match",
-          })}
-          error={!!errors.confirmPassword}
-          helperText={errors.confirmPassword?.message as ReactNode}
-        />
-
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          size="large"
-          sx={{ mt: 3, py: 1.5, fontWeight: "bold" }}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Resetting..." : "Reset Password"}
-        </Button>
       </Box>
     </Box>
   );

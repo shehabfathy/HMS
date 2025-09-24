@@ -63,7 +63,7 @@ function App() {
     <>
       <RouterProvider router={routes} />
       <Toaster
-        position="top-center"
+        position="top-right"
         gutter={12}
         containerStyle={{ margin: "8px" }}
         toastOptions={{
@@ -71,7 +71,7 @@ function App() {
             duration: 3000,
           },
           error: {
-            duration: 5000,
+            duration: 4000,
           },
           style: {
             fontSize: "16px",

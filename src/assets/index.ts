@@ -3,3 +3,9 @@ export { registImg };
 
 import loginImg from "../assets/login.png";
 export { loginImg };
+
+import forgetImg from "../assets/Forget.png";
+export { forgetImg };
+
+import resetImg from "../assets/Forget.png";
+export { resetImg };
