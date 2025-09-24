@@ -1,59 +1,47 @@
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-
-// Import Material-UI components
-import { Box, Typography, TextField, Button, Link } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  FormHelperText,
+} from "@mui/material";
 import type { ReactNode } from "react";
+import { forgetImg } from "../../../assets"; // same as your login page
+import type { TUserForget } from "../../../types/types";
+import toast from "react-hot-toast";
 
-// Define a type for our form data for better type safety
-interface IFormData {
-  email: string;
-}
+// Define a type for form data
 
-// ForgetPassword Component
 const ForgetPassword = () => {
-  // Use React Hook Form to manage form state and validation, now with our IFormData type
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
-  } = useForm<IFormData>();
+  } = useForm<TUserForget>();
 
-  // Define the function that will be called on form submission
-  const onSubmit = async (data: IFormData) => {
+  const onSubmit = async (data: TUserForget) => {
     try {
-      // API endpoint URL
       const url =
-        "https://upskilling-egypt.com:3000/api/v0/admin/users/forgot-password"; // Assuming this is the correct endpoint for password reset
+        "https://upskilling-egypt.com:3000/api/v0/admin/users/forgot-password";
 
-      // Make the API POST request with Axios
-      const response = await axios.post(url, data);
+      await axios.post(url, data);
 
-      // Log the successful response
-      console.log("Success:", response.data);
-      alert("Reset link sent successfully!");
-
-      // Reset the form after successful submission
-      reset();
+      toast.success("✅ Reset link sent successfully!");
+      navigate("/reset-password", { state: data.email });
     } catch (error) {
-      // FIX 1: Type-safe error handling.
-      // We check if the error is an AxiosError first to safely access response data.
       if (axios.isAxiosError(error)) {
-        // Now TypeScript knows 'error' is an AxiosError
         const apiError =
           error.response?.data?.message || "An API error occurred";
-        console.error("API Error:", apiError);
-        alert(`Failed to send reset link: ${apiError}`);
+        toast.error(`❌ Failed: ${apiError}`);
       } else if (error instanceof Error) {
-        // Handle other standard JavaScript errors
-        console.error("Generic Error:", error.message);
-        alert(`Failed to send reset link: ${error.message}`);
+        toast.error(`❌ Failed: ${error.message}`);
       } else {
-        // Handle cases where the thrown value is not an error object
-        console.error("An unexpected error occurred:", error);
-        alert("An unexpected error occurred. Please try again.");
+        toast.error("❌ Unexpected error. Please try again.");
       }
     }
   };
@@ -62,74 +50,120 @@ const ForgetPassword = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
+        minHeight: "100vh",
       }}
+      flexDirection={{ xs: "column", md: "row" }}
     >
-      <Typography
-        variant="h5"
-        component="h1"
-        sx={{ fontWeight: "bold", color: "primary.main" }}
-      >
-        Staycation.
-      </Typography>
-
-      <Box sx={{ mt: 4, width: "100%" }}>
-        <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
-          Forgot Password
-        </Typography>
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
-          Enter your email address below, and we’ll send you a reset link.
-        </Typography>
-        <Typography color="text.secondary">
-          Remembered it?{" "}
-          <Link
-            component={RouterLink}
-            to="/login"
-            color="error"
-            sx={{ fontWeight: "semibold" }}
+      {/* Left side - Form */}
+      <Box width={{ xs: "100%", md: "50%" }} sx={{ p: 4, overflowY: "auto" }}>
+        <Typography
+          mb="10px"
+          component="span"
+          fontWeight="500"
+          variant="body1"
+          fontSize="26px"
+          sx={{ color: "rgba(21, 44, 91, 1)" }}
+        >
+          Stay
+          <Typography
+            fontWeight="500"
+            fontSize="26px"
+            component="span"
+            variant="body1"
+            sx={{ color: "#000" }}
           >
-            Login here!
-          </Link>
+            cation
+          </Typography>
         </Typography>
+
+        <Box
+          component="form"
+          p={5}
+          autoComplete="off"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Typography
+            component="h3"
+            fontWeight={500}
+            fontSize={"30px"}
+            mb={"15px"}
+          >
+            Forgot Password
+          </Typography>
+          <Typography component="span">
+            Enter your email and we’ll send you a reset link.
+          </Typography>
+          <Typography component="p" mb={"15px"}>
+            Remembered it?{" "}
+            <Link
+              component={RouterLink}
+              to="/login"
+              sx={{ textDecoration: "none", color: "red" }}
+            >
+              Login here!
+            </Link>
+          </Typography>
+
+          {/* Email Field */}
+          <Box mb={"30px"}>
+            <TextField
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
+              })}
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="Please type here..."
+              variant="filled"
+              fullWidth
+            />
+            {errors.email && (
+              <FormHelperText sx={{ color: "red", fontSize: "13px" }}>
+                {errors.email.message as ReactNode}
+              </FormHelperText>
+            )}
+          </Box>
+
+          {/* Submit Button */}
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            disabled={isSubmitting}
+            sx={{ mb: "10px" }}
+          >
+            {isSubmitting ? "Sending..." : "Send Reset Link"}
+          </Button>
+        </Box>
       </Box>
 
+      {/* Right side - Image */}
       <Box
-        component="form"
-        sx={{ mt: 3, width: "100%" }}
-        onSubmit={handleSubmit(onSubmit)}
+        width={{ xs: "100%", md: "50%" }}
+        sx={{
+          position: { md: "sticky" },
+          py: "10px",
+          top: { md: 0 },
+          height: { xs: "300px", md: "100vh" },
+          flexShrink: 0,
+          borderRadius: "15px",
+          textAlign: "center",
+        }}
       >
-        <TextField
-          fullWidth
-          id="email"
-          label="Email"
-          type="email"
-          variant="outlined"
-          margin="normal"
-          placeholder="Enter your email"
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
-            },
-          })}
-          error={!!errors.email}
-          // FIX 2: Ensure the helperText is a valid ReactNode (string).
-          // We explicitly convert the message to a string to satisfy TypeScript.
-          helperText={errors.email?.message as ReactNode}
+        <img
+          src={forgetImg}
+          alt="forget password"
+          style={{
+            width: "80%",
+            height: "100%",
+            objectFit: "cover",
+            margin: "auto",
+          }}
         />
-
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          size="large"
-          sx={{ mt: 2, py: 1.5, fontWeight: "bold" }}
-          disabled={isSubmitting} // Disable the button while the form is submitting
-        >
-          {isSubmitting ? "Sending..." : "Send Reset Link"}
-        </Button>
       </Box>
     </Box>
   );

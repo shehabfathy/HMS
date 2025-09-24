@@ -30,3 +30,33 @@ export interface DataTableProps<T extends ApiItem> {
   columns: ColumnDef<T>[];
   headerContent?: React.ReactNode;
 }
+
+export type LoginData = {
+  _id: string;
+  role: "admin" | "user";
+  verified: boolean;
+  iat: number;
+  exp: number;
+};
+
+export type AuthContextType = {
+  loginData: LoginData | null;
+  logOut: () => void;
+  getUser: () => void;
+};
+
+export type TUserLogin = {
+  email: string;
+  password: string;
+};
+
+export type TUserForget = {
+  email: string;
+};
+
+export type TResetUser = {
+  email: string;
+  seed: string;
+  password: string;
+  confirmPassword: string;
+};

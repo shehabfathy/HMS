@@ -3,12 +3,12 @@ import { createRoot } from "react-dom/client";
 import "./styles/global.css";
 import App from "./App.tsx";
 import "./index.css";
-// import { AuthContextProvider } from "./context/AuthContextProvider.tsx";
+import { AuthContextProvider } from "./context/AuthContextProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* <AuthContextProvider> */}
-    <App />
-    {/* </AuthContextProvider> */}
+    <AuthContextProvider>
+      <App />
+    </AuthContextProvider>
   </StrictMode>
 );

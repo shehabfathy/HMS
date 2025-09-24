@@ -9,9 +9,9 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CookieService from "../../../service/Cookies/Cookies";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import React from "react";
+import React, { useContext } from "react";
 import FormHelperText from "@mui/material/FormHelperText";
 import {
   Email_validation,
@@ -22,8 +22,11 @@ import toast from "react-hot-toast";
 import { loginImg } from "../../../assets";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import type { TUserLogin } from "../../../types/types";
+import { AuthContext } from "../../../context/AuthContext";
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const { getUser } = useContext(AuthContext)!;
   const navigate = useNavigate();
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -42,9 +45,9 @@ export default function Login() {
     register,
     formState: { errors, isSubmitting },
     handleSubmit,
-  } = useForm();
+  } = useForm<TUserLogin>();
 
-  const onSubmit = async (value) => {
+  const onSubmit = async (value: TUserLogin) => {
     try {
       const { data } = await axios.post(
         `https://upskilling-egypt.com:3000/api/v0/admin/users/login`,
@@ -59,13 +62,13 @@ export default function Login() {
 
       // 3. Save only the raw token to the cookie with the root path
       CookieService.set("token", rawToken, { path: "/" });
-
+      getUser();
       navigate("/dashboard");
       toast.success("✅ Welcome Dear!", { duration: 3000 });
     } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
       toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
+        err.response?.data?.message || "Something went wrong. Please try again."
       );
     }
   };
