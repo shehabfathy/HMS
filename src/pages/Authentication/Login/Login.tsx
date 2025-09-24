@@ -50,9 +50,17 @@ export default function Login() {
         `https://upskilling-egypt.com:3000/api/v0/admin/users/login`,
         value
       );
-      CookieService.set("token", data.data.token);
-      navigate("/dashboard");
 
+      // 1. Get the token which is "Bearer ey..."
+      const fullToken = data.data.token;
+
+      // 2. Split the string by the space and take the second part (the actual token)
+      const rawToken = fullToken.split(" ")[1];
+
+      // 3. Save only the raw token to the cookie with the root path
+      CookieService.set("token", rawToken, { path: "/" });
+
+      navigate("/dashboard");
       toast.success("✅ Welcome Dear!", { duration: 3000 });
     } catch (error) {
       toast.error(

@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts";
 import { ClipLoader } from "react-spinners";
+import { Card, CardContent, Typography, Grid, Box } from "@mui/material";
 
 // --- Type Definitions ---
 interface DashboardData {
@@ -30,20 +31,30 @@ interface DashboardData {
   };
 }
 
-interface StatCardProps {
-  value: string | number;
-  label: string;
-}
-
-function StatCard({ value, label }: StatCardProps) {
+// --- StatCard Sub-component ---
+function StatCard({ value, label }: { value: number; label: string }) {
   return (
-    <div className="bg-white text-gray-800 p-6 rounded-lg text-center flex-1 min-w-[180px] shadow-md">
-      <h3 className="text-4xl font-bold mb-2">{value}</h3>
-      <p className="text-gray-500">{label}</p>
-    </div>
+    <Card
+      elevation={2}
+      // ✅ Add the sx prop here for styling
+      sx={{
+        backgroundColor: "#1A1B1E", // A nice indigo color
+        color: "white", // Make the text white for contrast
+      }}
+    >
+      <CardContent sx={{ textAlign: "center" }}>
+        <Typography variant="h4" component="div" fontWeight="bold">
+          {value}
+        </Typography>
+        <Typography sx={{ mt: 1, color: "rgba(255, 255, 255, 0.8)" }}>
+          {label}
+        </Typography>
+      </CardContent>
+    </Card>
   );
 }
 
+// --- Main Dashboard Component ---
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
@@ -51,64 +62,67 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // ✅ Get token via CookieService
-      const token = CookieService.get("authToken");
-
-      if (!token) {
-        throw new Error("Authentication token not found.");
-      }
-
-      const response = await axios.get(
-        "https://upskilling-egypt.com:3000/api/v0/admin/dashboard",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setDashboardData(response.data.data);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.message || "Failed to fetch dashboard data."
-        );
-      } else {
-        setError("An unexpected error occurred.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = CookieService.get("token");
+        if (!token) throw new Error("Authentication token not found.");
+
+        const response = await axios.get(
+          "https://upskilling-egypt.com:3000/api/v0/admin/dashboard",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setDashboardData(response.data.data);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          setError(
+            err.response?.data?.message || "Failed to fetch dashboard data."
+          );
+        } else {
+          setError("An unexpected error occurred.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchDashboardData();
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <ClipLoader size={40} color="#4f46e5" />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <ClipLoader size={50} color={"#4f46e5"} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6 text-center text-red-600 bg-red-100 rounded-lg">
-        {error}
-      </div>
+      <Card
+        sx={{ backgroundColor: "#ffebee", color: "#c62828", padding: "16px" }}
+      >
+        <Typography variant="h6">Error</Typography>
+        <Typography>{error}</Typography>
+      </Card>
     );
   }
 
   if (!dashboardData) {
     return (
-      <div className="p-6 text-center text-gray-500">
+      <Typography sx={{ textAlign: "center", color: "text.secondary", mt: 4 }}>
         No dashboard data available.
-      </div>
+      </Typography>
     );
   }
 
@@ -124,59 +138,89 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-4 md:p-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Typography variant="h4" component="h2" fontWeight="bold" sx={{ mb: 4 }}>
+        Dashboard
+      </Typography>
 
-      <div className="flex flex-wrap gap-6 mb-8">
-        <StatCard value={dashboardData.rooms} label="Rooms" />
-        <StatCard value={dashboardData.facilities} label="Facilities" />
-        <StatCard value={dashboardData.ads} label="Ads" />
-      </div>
+      <Grid container rowSpacing={4} columnSpacing={4} sx={{ mb: 5 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <StatCard value={dashboardData.rooms} label="Rooms" />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <StatCard value={dashboardData.facilities} label="Facilities" />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <StatCard value={dashboardData.ads} label="Ads" />
+        </Grid>
+      </Grid>
 
-      <div className="flex flex-wrap lg:flex-nowrap gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md flex-1 min-h-[300px] w-full lg:w-1/2">
-          <h4 className="text-lg font-semibold text-gray-700 mb-4">
-            Booking Status
-          </h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={bookingStatusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                {bookingStatusData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={BOOKING_COLORS[index % BOOKING_COLORS.length]}
+      <Grid container rowSpacing={4} columnSpacing={4}>
+        <Grid size={{ xs: 12, md: 4, lg: 6 }}>
+          <Card elevation={2}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Booking Status
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={bookingStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {bookingStatusData.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={BOOKING_COLORS[index % BOOKING_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4, lg: 6 }}>
+          <Card elevation={2}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                User Roles
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={userRoleData}
+                  layout="vertical"
+                  margin={{ left: 10, top: 5, right: 20, bottom: 5 }}
+                >
+                  <XAxis type="number" />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={80}
+                    tickMargin={10}
                   />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-md flex-1 min-h-[300px] w-full lg:w-1/2">
-          <h4 className="text-lg font-semibold text-gray-700 mb-4">
-            User Roles
-          </h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={userRoleData} layout="vertical">
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" width={60} />
-              <Tooltip cursor={{ fill: "#f3f4f6" }} />
-              <Legend />
-              <Bar dataKey="count" name="Total" fill="#82ca9d" barSize={30} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
+                  <Tooltip cursor={{ fill: "#f3f4f6" }} />
+                  <Legend />
+                  <Bar
+                    dataKey="count"
+                    name="Total"
+                    fill="#82ca9d"
+                    barSize={30}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

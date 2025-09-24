@@ -19,6 +19,7 @@ import Rooms_Data from "./pages/Rooms/Rooms_Data/Rooms_Data";
 import Facilities_List from "./pages/Facilities/Facilities_List/Facilities_List";
 import Facilities_Data from "./pages/Facilities/Facilities_Data/Facilities_Data";
 import UsersList from "./pages/Users/UsersList";
+import ProtectedRoute from "./shared/ProtectedRoute/ProtectedRoute";
 
 function App() {
   const routes = createBrowserRouter([
@@ -38,7 +39,11 @@ function App() {
     },
     {
       path: ROUTES.DASHBOARD,
-      element: <MasterLayout />,
+      element: (
+        <ProtectedRoute>
+          <MasterLayout />
+        </ProtectedRoute>
+      ),
       errorElement: <NOtFound />,
       children: [
         { index: true, element: <Dashboard /> },
@@ -57,7 +62,26 @@ function App() {
   return (
     <>
       <RouterProvider router={routes} />
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-center"
+        gutter={12}
+        containerStyle={{ margin: "8px" }}
+        toastOptions={{
+          success: {
+            duration: 3000,
+          },
+          error: {
+            duration: 5000,
+          },
+          style: {
+            fontSize: "16px",
+            maxWidth: "500px",
+            padding: "16px 24px",
+            backgroundColor: "var(--color-grey-0)",
+            color: "var(--color-grey-700)",
+          },
+        }}
+      />
     </>
   );
 }
