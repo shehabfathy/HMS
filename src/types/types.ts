@@ -1,5 +1,5 @@
 import React from "react";
-
+import type { ReactNode } from "react";
 /**
  * A generic interface for any data item fetched from the API.
  * It requires an `_id` property for keying in React lists.
@@ -61,7 +61,7 @@ export type TResetUser = {
   confirmPassword: string;
 };
 
-// Booking Type
+// Booking from API
 export type TBookingApi = {
   _id: string;
   startDate: string;
@@ -80,13 +80,14 @@ export type TBookingApi = {
   updatedAt: string;
 };
 
+// Booking for DataGrid
 export type TBookingItem = {
   id: string;
   roomNumber: string;
-  totalPrice: number;
+  price: number; // ✅ matches component
   startDate: string;
   endDate: string;
   user: string;
   status: string;
-  action: string;
+  action: ReactNode; // ✅ allows Button
 };

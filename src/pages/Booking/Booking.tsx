@@ -1,9 +1,9 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Modal, Typography } from "@mui/material";
 import axios, { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CookieService from "../../service/Cookies/Cookies";
 import toast from "react-hot-toast";
 import type { TBookingApi, TBookingItem } from "../../types/types";
@@ -11,7 +11,21 @@ import { MoonLoader } from "react-spinners";
 
 export default function Booking() {
   const [bookingList, setBookingList] = useState<TBookingItem[]>([]);
+  const [selectedBooking, setSelectedBooking] = useState<TBookingItem | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = (userBooking: TBookingItem) => {
+    setSelectedBooking(userBooking);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setSelectedBooking(null);
+    setOpen(false);
+  };
 
   const handleBooking = async () => {
     try {
@@ -32,7 +46,6 @@ export default function Booking() {
         endDate: new Date(b.endDate).toLocaleDateString(),
         user: b.user.userName,
         status: b.status,
-        action: "View",
       }));
 
       setBookingList(rows);
@@ -55,7 +68,20 @@ export default function Booking() {
     { field: "endDate", headerName: "End Date", flex: 1 },
     { field: "user", headerName: "User", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
-    { field: "action", headerName: "Action", flex: 1 },
+    {
+      field: "action",
+      headerName: "Action",
+      flex: 1,
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={() => handleOpen(params.row)}
+        >
+          View
+        </Button>
+      ),
+    },
   ];
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -68,9 +94,54 @@ export default function Booking() {
         </Typography>
         <Typography component="span">You can check all details</Typography>
       </Box>
+
+      {/* Modal */}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          {selectedBooking ? (
+            <>
+              <Typography variant="h6">
+                Booking for Room {selectedBooking.roomNumber}
+              </Typography>
+              <Typography>Price: {selectedBooking.price}</Typography>
+              <Typography>User: {selectedBooking.user}</Typography>
+              <Typography>Status: {selectedBooking.status}</Typography>
+              <Typography>
+                {selectedBooking.startDate} → {selectedBooking.endDate}
+              </Typography>
+            </>
+          ) : (
+            <Typography>No booking selected</Typography>
+          )}
+        </Box>
+      </Modal>
+
+      {/* Table */}
       {loading ? (
-        <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
-          <MoonLoader />
+        <Box
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+          height="60vh"
+        >
+          <MoonLoader size={50} color="#1976d2" />
         </Box>
       ) : (
         <Paper sx={{ height: 400, width: "100%" }}>
