@@ -60,3 +60,33 @@ export type TResetUser = {
   password: string;
   confirmPassword: string;
 };
+
+// Booking Type
+export type TBookingApi = {
+  _id: string;
+  startDate: string;
+  endDate: string;
+  totalPrice: number;
+  user: {
+    _id: string;
+    userName: string;
+  };
+  room: {
+    _id: string;
+    roomNumber: string;
+  } | null;
+  status: "pending" | "completed";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TBookingItem = {
+  id: string;
+  roomNumber: string;
+  totalPrice: number;
+  startDate: string;
+  endDate: string;
+  user: string;
+  status: string;
+  action: string;
+};

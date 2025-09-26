@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import CookieService from "../../service/Cookies/Cookies"; // Adjust path as needed
 import { ROUTES } from "../../service/Endpoint/Endpoint";
@@ -35,6 +35,7 @@ import {
   AccountCircleOutlined as AccountCircleOutlinedIcon,
   Bed as BedIcon,
 } from "@mui/icons-material";
+import { AuthContext } from "../../context/AuthContext";
 
 const drawerWidth = 240;
 
