@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import CookieService from "../../service/Cookies/Cookies"; // Adjust path as needed
 import { ROUTES } from "../../service/Endpoint/Endpoint";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
+import AppsIcon from "@mui/icons-material/Apps";
 // Import Material-UI components & utilities
 import {
   AppBar as MuiAppBar,
@@ -46,6 +47,11 @@ const navItems = [
   { text: "Users", icon: <PeopleIcon />, path: ROUTES.Users },
   { text: "Rooms", icon: <BedIcon />, path: ROUTES.Rooms_List },
   { text: "Ads", icon: <DynamicFormIcon />, path: ROUTES.Ads_List },
+  {
+    text: "Facilities",
+    icon: <AppsIcon />,
+    path: ROUTES.Facilities_List,
+  },
 ];
 
 // --- Styled Components for Smooth Transitions ---

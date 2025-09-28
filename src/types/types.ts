@@ -126,3 +126,15 @@ export type TAds = {
   Capacity: number;
   Active: boolean;
 };
+
+export type TFacilityApi = {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TFacility = {
+  id: string;
+  name: string;
+};

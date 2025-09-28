@@ -18,4 +18,5 @@ export const ROUTES = {
   Booking: "/booking",
   Users: "/user",
   PROFILE: "/profile",
+  LANDING_PAGE: "/landingPage",
 };

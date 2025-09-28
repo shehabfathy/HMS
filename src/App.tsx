@@ -20,11 +20,22 @@ import Facilities_List from "./pages/Facilities/Facilities_List/Facilities_List"
 import Facilities_Data from "./pages/Facilities/Facilities_Data/Facilities_Data";
 import UsersList from "./pages/Users/UsersList";
 import ProtectedRoute from "./shared/ProtectedRoute/ProtectedRoute";
+import LandingLayout from "./shared/LandingLayout/LandingLayout";
+import LandingPage from "./pages/LandingPage/LandingPage";
 
 function App() {
   const routes = createBrowserRouter([
     {
       path: ROUTES.ROOT,
+      element: <LandingLayout />,
+      errorElement: <NOtFound />,
+      children: [
+        { index: true, element: <LandingPage /> },
+        { path: ROUTES.LANDING_PAGE.slice(1), element: <LandingPage /> },
+      ],
+    },
+    {
+      path: ROUTES.LOGIN,
       element: <AuthLayout />,
       errorElement: <NOtFound />,
       children: [
