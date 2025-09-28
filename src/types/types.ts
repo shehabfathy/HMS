@@ -91,3 +91,38 @@ export type TBookingItem = {
   status: string;
   action: ReactNode; // ✅ allows Button
 };
+
+//  Ads
+
+export type TAdsApi = {
+  _id: string;
+  isActive: boolean;
+  room: {
+    id: string;
+    roomNumber: string;
+    price: number;
+    capacity: number;
+    discount: number;
+    facilities: string[];
+    createdBy: string;
+    images: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+  createdBy: {
+    _id: string;
+    userName: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TAds = {
+  id: string;
+  roomName: string;
+  image: string;
+  price: number;
+  Discount: number;
+  Capacity: number;
+  Active: boolean;
+};

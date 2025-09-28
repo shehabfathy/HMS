@@ -20,8 +20,6 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
     try {
       const decoded = jwtDecode<LoginData>(token);
-      console.log(decoded);
-
       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
         toast.error("Session expired. Please log in again.");
         logOut();

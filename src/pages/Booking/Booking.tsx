@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import CookieService from "../../service/Cookies/Cookies";
 import toast from "react-hot-toast";
 import type { TBookingApi, TBookingItem } from "../../types/types";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { MoonLoader } from "react-spinners";
 
 export default function Booking() {
@@ -78,7 +79,7 @@ export default function Booking() {
           size="small"
           onClick={() => handleOpen(params.row)}
         >
-          View
+          <RemoveRedEyeIcon />
         </Button>
       ),
     },

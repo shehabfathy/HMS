@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import CookieService from "../../service/Cookies/Cookies"; // Adjust path as needed
 import { ROUTES } from "../../service/Endpoint/Endpoint";
+import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 // Import Material-UI components & utilities
 import {
   AppBar as MuiAppBar,
@@ -35,7 +36,6 @@ import {
   AccountCircleOutlined as AccountCircleOutlinedIcon,
   Bed as BedIcon,
 } from "@mui/icons-material";
-import { AuthContext } from "../../context/AuthContext";
 
 const drawerWidth = 240;
 
@@ -45,6 +45,7 @@ const navItems = [
   { text: "Bookings", icon: <BookIcon />, path: ROUTES.Booking },
   { text: "Users", icon: <PeopleIcon />, path: ROUTES.Users },
   { text: "Rooms", icon: <BedIcon />, path: ROUTES.Rooms_List },
+  { text: "Ads", icon: <DynamicFormIcon />, path: ROUTES.Ads_List },
 ];
 
 // --- Styled Components for Smooth Transitions ---

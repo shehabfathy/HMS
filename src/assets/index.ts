@@ -9,3 +9,6 @@ export { forgetImg };
 
 import resetImg from "../assets/Forget.png";
 export { resetImg };
+
+import deleteImg from "../assets/Email.png";
+export { deleteImg };
