@@ -35,17 +35,15 @@ function App() {
       ],
     },
     {
-      path: ROUTES.LOGIN,
-      element: <AuthLayout />,
+      element: <AuthLayout />, // This route provides the layout
       errorElement: <NOtFound />,
+      // All children are now relative to the root path "/"
       children: [
-        { index: true, element: <Login /> },
-        { path: ROUTES.LOGIN.slice(1), element: <Login /> },
-        { path: ROUTES.REGISTER.slice(1), element: <Register /> },
-        { path: ROUTES.FORGET_PASSWORD.slice(1), element: <ForgetPassword /> },
-        { path: ROUTES.RESET_PASSWORD.slice(1), element: <ResetPassword /> },
-        // { path: ROUTES.VERIFY_ACCOUNT.slice(1), element: <VerifyAcc /> },
-        { path: ROUTES.CHANGE_PASSWORD.slice(1), element: <ChangePassword /> },
+        { path: ROUTES.LOGIN, element: <Login /> },
+        { path: ROUTES.REGISTER, element: <Register /> },
+        { path: ROUTES.FORGET_PASSWORD, element: <ForgetPassword /> },
+        { path: ROUTES.RESET_PASSWORD, element: <ResetPassword /> },
+        { path: ROUTES.CHANGE_PASSWORD, element: <ChangePassword /> },
       ],
     },
     {

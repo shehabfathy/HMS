@@ -138,3 +138,14 @@ export type TFacility = {
   id: string;
   name: string;
 };
+
+// ++ ADD THIS TYPE ++
+export type HeaderProps = {
+  isLoggedIn: boolean;
+  onLogout: () => void;
+};
+
+/**
+ * A generic interface for any data item fetched from the API.
+ * It requires an `_id` property for keying in React lists.
+ */
