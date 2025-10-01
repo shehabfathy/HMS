@@ -1,16 +1,31 @@
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Box,
   Link,
   Button,
   Avatar,
+  Menu,
+  MenuItem,
+  Typography,
 } from "@mui/material";
 import type { HeaderProps } from "../../types/types";
 import { ROUTES } from "../../service/Endpoint/Endpoint";
+import Logo from "../../assets/Staycation..png"; // path to your logo image
 
 const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <AppBar
       position="static"
@@ -23,20 +38,15 @@ const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
       }}
     >
       <Toolbar disableGutters>
-        <Typography
-          variant="h6"
-          component="h1"
-          sx={{ fontWeight: 700, fontSize: "24px", color: "#B0B0B0" }} // Set default color for the rest of the word
-        >
-          <span style={{ color: "#152C5B" }}>Stay</span>cation.
-        </Typography>
+        <Box display="flex" alignItems="center">
+          <img src={Logo} alt="Staycation Logo" style={{ height: 20 }} />
+        </Box>
 
         <Box sx={{ flexGrow: 1 }} />
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 3.5 }}>
-          {/* Using ROUTES constant for Home/Landing Page */}
           <Link
-            href={ROUTES.LANDING_PAGE} // ++ UPDATED ROUTE
+            href={ROUTES.LANDING_PAGE}
             color="text.secondary"
             underline="none"
             sx={{
@@ -47,62 +57,55 @@ const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
             Home
           </Link>
 
-          {/* NOTE: No route was provided for 'Explore'. Commenting out for now.
-          <Link
-            href="/explore" 
-            color="text.secondary"
-            underline="none"
-            sx={{
-              fontWeight: 500,
-              "&:hover": { color: "primary.main" },
-            }}
-          >
-            Explore
-          </Link>
-          */}
-
-          {/* NOTE: No route was provided for 'Favorites'. Commenting out for now.
-          <Link
-            href="/favorites"
-            color="text.secondary"
-            underline="none"
-            sx={{
-              fontWeight: 500,
-              "&:hover": { color: "primary.main" },
-            }}
-          >
-            Favorites
-          </Link>
-          */}
-
-          {!isLoggedIn ? (
+          {isLoggedIn ? (
             <>
+              {/* Avatar with dropdown menu */}
               <Avatar
                 src="https://via.placeholder.com/40"
-                sx={{ width: 40, height: 40, ml: 1 }}
+                sx={{ width: 40, height: 40, cursor: "pointer" }}
+                onClick={handleAvatarClick}
               />
-              <Button
-                onClick={onLogout}
-                sx={{
-                  bgcolor: "#E0E7EB",
-                  color: "text.primary",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": { bgcolor: "#cdd6db" },
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                  sx: { mt: 1.5 },
+                }}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
                 }}
               >
-                Logout
-              </Button>
+                <MenuItem
+                  onClick={handleClose}
+                  component="a"
+                  href={ROUTES.PROFILE} // you'll need to define this route
+                >
+                  <Typography>Profile</Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    onLogout();
+                  }}
+                >
+                  <Typography>Logout</Typography>
+                </MenuItem>
+              </Menu>
             </>
           ) : (
             <>
-              {/* Using ROUTES constants for Register and Login */}
               <Button
                 href={ROUTES.REGISTER}
                 variant="outlined"
                 sx={{
-                  width: 149, // ++ ADDED
-                  height: 43, // ++ ADDED
+                  width: 149,
+                  height: 43,
                   fontWeight: 600,
                   textTransform: "none",
                   backgroundColor: "#3252DF",
@@ -112,7 +115,6 @@ const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
                     backgroundColor: "#254eda",
                     borderColor: "#254eda",
                   },
-                  // Note: Padding is still applied inside the fixed dimensions
                   px: 3,
                   py: 2,
                 }}
@@ -123,8 +125,8 @@ const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
                 href={ROUTES.LOGIN}
                 variant="outlined"
                 sx={{
-                  width: 149, // ++ ADDED
-                  height: 43, // ++ ADDED
+                  width: 149,
+                  height: 43,
                   fontWeight: 600,
                   textTransform: "none",
                   backgroundColor: "#3252DF",
@@ -134,7 +136,6 @@ const Header = ({ isLoggedIn, onLogout }: HeaderProps) => {
                     backgroundColor: "#254eda",
                     borderColor: "#254eda",
                   },
-                  // Note: Padding is still applied inside the fixed dimensions
                   px: 3,
                   py: 2,
                 }}

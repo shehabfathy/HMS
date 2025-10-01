@@ -32,6 +32,7 @@ function App() {
       children: [
         { index: true, element: <LandingPage /> },
         { path: ROUTES.LANDING_PAGE.slice(1), element: <LandingPage /> },
+        { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
       ],
     },
     {
@@ -60,7 +61,7 @@ function App() {
         { path: ROUTES.Ads_List.slice(1), element: <Ads_List /> },
         { path: ROUTES.Ads_Data.slice(1), element: <Ads_Data /> },
         { path: ROUTES.Rooms_List.slice(1), element: <Rooms_List /> },
-        { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
+
         { path: ROUTES.Facilities_List.slice(1), element: <Facilities_List /> },
         { path: ROUTES.Facilities_Data.slice(1), element: <Facilities_Data /> },
         { path: ROUTES.Booking.slice(1), element: <Booking /> },

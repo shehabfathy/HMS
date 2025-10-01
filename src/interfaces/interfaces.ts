@@ -23,3 +23,15 @@ export interface IUpdateRoomForm {
   capacity: number;
   facilities: string; // Facilities are now a single string for display
 }
+
+export interface Room {
+  id: number;
+  title: string;
+  img: string;
+  desc: string;
+}
+
+export interface FeaturedRoomsProps {
+  title: string;
+  rooms: Room[];
+}
