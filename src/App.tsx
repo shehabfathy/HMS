@@ -22,6 +22,7 @@ import UsersList from "./pages/Users/UsersList";
 import ProtectedRoute from "./shared/ProtectedRoute/ProtectedRoute";
 import LandingLayout from "./shared/LandingLayout/LandingLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import Explore from "./pages/LandingPage/Explore";
 
 function App() {
   const routes = createBrowserRouter([
@@ -32,6 +33,7 @@ function App() {
       children: [
         { index: true, element: <LandingPage /> },
         { path: ROUTES.LANDING_PAGE.slice(1), element: <LandingPage /> },
+        { path: ROUTES.EXPLORE.slice(1), element: <Explore /> },
       ],
     },
     {

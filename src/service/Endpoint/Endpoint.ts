@@ -19,4 +19,5 @@ export const ROUTES = {
   Users: "/user",
   PROFILE: "/profile",
   LANDING_PAGE: "/landingPage",
+  EXPLORE: "/explore",
 };

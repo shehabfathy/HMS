@@ -12,3 +12,6 @@ export { resetImg };
 
 import deleteImg from "../assets/Email.png";
 export { deleteImg };
+
+import mainImg from "../assets/picture.png";
+export { mainImg };
