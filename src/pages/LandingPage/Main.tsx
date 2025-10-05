@@ -18,7 +18,7 @@ export default function Main() {
   return (
     <>
       <Box
-        py={8}
+        sx={{ width: "100%", mt: 1, mb: 1, px: { xs: 2, md: 10 } }}
         display={"flex"}
         justifyContent={"space-between"}
         gap={8}
@@ -165,6 +165,7 @@ export default function Main() {
 
           <Button
             variant="contained"
+            sx={{ px: 8 }}
             size="large"
             onClick={() => {
               navigate(ROUTES.EXPLORE, {
@@ -185,18 +186,20 @@ export default function Main() {
           sx={{
             border: "1px solid rgba(229, 229, 229, 1)",
             position: "relative",
+            display: { xs: "block" },
             flex: 1,
             borderRadius: "15px",
           }}
         >
-          <img
+          <Box
+            component="img"
             src={mainImg}
             alt="vacation"
-            style={{
+            sx={{
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              position: "absolute",
+              position: { md: "absolute" },
               top: -25,
               left: -25,
               borderRadius: "15px",

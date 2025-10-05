@@ -24,6 +24,7 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { TUserLogin } from "../../../types/types";
 import { AuthContext } from "../../../context/AuthContext";
+import { ROUTES } from "../../../service/Endpoint/Endpoint";
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
   const { getUser } = useContext(AuthContext)!;
@@ -63,7 +64,7 @@ export default function Login() {
       // 3. Save only the raw token to the cookie with the root path
       CookieService.set("token", rawToken, { path: "/" });
       getUser();
-      navigate("/dashboard");
+      navigate(ROUTES.LANDING_PAGE);
       toast.success("✅ Welcome Dear!", { duration: 3000 });
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;

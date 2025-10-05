@@ -149,3 +149,20 @@ export type HeaderProps = {
  * A generic interface for any data item fetched from the API.
  * It requires an `_id` property for keying in React lists.
  */
+
+export type tExRoom = {
+  _id: string;
+  images: string[];
+  price: number;
+  name?: string;
+  location?: string;
+};
+
+export type tPopAds = {
+  _id: string;
+  room: {
+    images: string[];
+    price: number;
+    _id: string;
+  };
+};

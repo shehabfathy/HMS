@@ -23,6 +23,7 @@ import ProtectedRoute from "./shared/ProtectedRoute/ProtectedRoute";
 import LandingLayout from "./shared/LandingLayout/LandingLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import Explore from "./pages/LandingPage/Explore";
+import Favorite from "./pages/LandingPage/Favorite";
 
 function App() {
   const routes = createBrowserRouter([
@@ -34,6 +35,8 @@ function App() {
         { index: true, element: <LandingPage /> },
         { path: ROUTES.LANDING_PAGE.slice(1), element: <LandingPage /> },
         { path: ROUTES.EXPLORE.slice(1), element: <Explore /> },
+        { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
+        { path: ROUTES.FAVORITE.slice(1), element: <Favorite /> },
       ],
     },
     {
@@ -62,7 +65,7 @@ function App() {
         { path: ROUTES.Ads_List.slice(1), element: <Ads_List /> },
         { path: ROUTES.Ads_Data.slice(1), element: <Ads_Data /> },
         { path: ROUTES.Rooms_List.slice(1), element: <Rooms_List /> },
-        { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
+
         { path: ROUTES.Facilities_List.slice(1), element: <Facilities_List /> },
         { path: ROUTES.Facilities_Data.slice(1), element: <Facilities_Data /> },
         { path: ROUTES.Booking.slice(1), element: <Booking /> },
@@ -88,8 +91,8 @@ function App() {
             fontSize: "16px",
             maxWidth: "500px",
             padding: "16px 24px",
-            backgroundColor: "var(--color-grey-0)",
-            color: "var(--color-grey-700)",
+            // backgroundColor: "var(--color-grey-0)",
+            // color: "var(--color-grey-700)",
           },
         }}
       />

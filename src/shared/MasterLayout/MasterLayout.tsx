@@ -4,6 +4,7 @@ import CookieService from "../../service/Cookies/Cookies"; // Adjust path as nee
 import { ROUTES } from "../../service/Endpoint/Endpoint";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import AppsIcon from "@mui/icons-material/Apps";
+import SettingsIcon from "@mui/icons-material/Settings";
 // Import Material-UI components & utilities
 import {
   AppBar as MuiAppBar,
@@ -51,6 +52,11 @@ const navItems = [
     text: "Facilities",
     icon: <AppsIcon />,
     path: ROUTES.Facilities_List,
+  },
+  {
+    text: "change Password",
+    icon: <SettingsIcon />,
+    path: ROUTES.CHANGE_PASSWORD,
   },
 ];
 
