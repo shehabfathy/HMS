@@ -12,7 +12,7 @@ import Dashboard from "./pages/DahBoard/Dashboard";
 import MasterLayout from "./shared/MasterLayout/MasterLayout";
 import Booking from "./pages/Booking/Booking";
 import Ads_List from "./pages/Ads/Ads_List/Ads_List";
-
+import AuthenticatedRoute from "./shared/AuthenticatedRoute/AuthenticatedRoute";
 import Ads_Data from "./pages/Ads/Ads_Data/Ads_Data";
 import Rooms_List from "./pages/Rooms/Rooms_List/Rooms_List";
 import Rooms_Data from "./pages/Rooms/Rooms_Data/Rooms_Data";
@@ -41,8 +41,22 @@ function App() {
           path: `${ROUTES.Rooms_Data.slice(1)}/:roomId`,
           element: <Rooms_Data />,
         },
-        { path: ROUTES.FAVORITE.slice(1), element: <Favorite /> },
-        { path: ROUTES.PAYMENT.slice(1), element: <PaymentForm /> },
+        {
+          path: ROUTES.FAVORITE.slice(1),
+          element: (
+            <AuthenticatedRoute>
+              <Favorite />
+            </AuthenticatedRoute>
+          ),
+        },
+        {
+          path: ROUTES.PAYMENT.slice(1),
+          element: (
+            <AuthenticatedRoute>
+              <PaymentForm />
+            </AuthenticatedRoute>
+          ),
+        },
       ],
     },
     {
