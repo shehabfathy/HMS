@@ -24,6 +24,7 @@ import LandingLayout from "./shared/LandingLayout/LandingLayout";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import Explore from "./pages/LandingPage/Explore";
 import Favorite from "./pages/LandingPage/Favorite";
+import PaymentForm from "./pages/Payment/Payment";
 
 function App() {
   const routes = createBrowserRouter([
@@ -37,6 +38,7 @@ function App() {
         { path: ROUTES.EXPLORE.slice(1), element: <Explore /> },
         { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
         { path: ROUTES.FAVORITE.slice(1), element: <Favorite /> },
+        { path: ROUTES.PAYMENT.slice(1), element: <PaymentForm /> },
       ],
     },
     {

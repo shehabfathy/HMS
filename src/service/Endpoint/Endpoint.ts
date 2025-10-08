@@ -21,4 +21,5 @@ export const ROUTES = {
   LANDING_PAGE: "/landingPage",
   EXPLORE: "/explore",
   FAVORITE: "/favorite",
+  PAYMENT: "/payment",
 };
