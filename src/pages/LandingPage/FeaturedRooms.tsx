@@ -1,4 +1,5 @@
-import { Grid, Box, styled, Paper, Typography } from "@mui/material";
+import { Grid, Box, styled, Paper, Typography, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom"; // 1. Import hook for navigation
 import type { FeaturedRoomsProps } from "../../interfaces/interfaces";
 
 // Define the shape of the data for clarity (good practice in TypeScript)
@@ -21,25 +22,41 @@ const Item = styled(Paper)(({ theme }) => ({
 
 // The component now accepts props: 'title' and 'rooms'
 const FeaturedRooms = ({ title, rooms }: FeaturedRoomsProps) => {
+  const navigate = useNavigate(); // 2. Initialize navigate function
+
   return (
     <Box sx={{ width: "100%", mt: 1, mb: 1, px: { xs: 2, md: 10 } }}>
-      {/* 1. Title added to the top left */}
-      <Typography
-        variant="h4"
-        component="h2"
+      {/* Container to hold the title and button */}
+      <Box
         sx={{
-          mb: 4, // Kept the bottom margin
-          fontFamily: "Poppins",
-          fontWeight: 500,
-          fontSize: "24px",
-          lineHeight: "100%",
-          letterSpacing: "0%",
-          color: "#152C5B",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          // I moved the margins from the Typography component to this container
+          // to maintain the original spacing.
+          mb: 4,
           mx: 10,
         }}
       >
-        {title}
-      </Typography>
+        <Typography
+          variant="h4"
+          component="h2"
+          sx={{
+            // Spacing (mb, mx) is now handled by the parent Box
+            fontFamily: "Poppins",
+            fontWeight: 500,
+            fontSize: "24px",
+            lineHeight: "100%",
+            letterSpacing: "0%",
+            color: "#152C5B",
+          }}
+        >
+          {title}
+        </Typography>
+
+        {/* 3. The new explore button */}
+        <Button onClick={() => navigate("/explore")}>Explore</Button>
+      </Box>
 
       <Grid container spacing={4} justifyContent="center">
         {/* 2. Now mapping over the 'rooms' array from props */}

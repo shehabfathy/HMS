@@ -1,18 +1,18 @@
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import type { tPopAds } from "../../types/types";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward"; // Import arrow icon
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../service/Endpoint/Endpoint";
 import CookieService from "../../service/Cookies/Cookies";
 
 export default function PopularAds() {
   const [Ads, setAds] = useState<tPopAds[]>([]);
-
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
   const getAllAds = async () => {
     try {
@@ -26,7 +26,7 @@ export default function PopularAds() {
     }
   };
 
-  const AddFavorite = async (id: string) => {
+  const addFavorite = async (id: string) => {
     try {
       const { data } = await axios.post(
         `https://upskilling-egypt.com:3000/api/v0/portal/favorite-rooms`,
@@ -53,21 +53,39 @@ export default function PopularAds() {
   return (
     <>
       <Box sx={{ width: "100%", mt: 1, mb: 1, px: { xs: 2, md: 13 } }}>
-        <Typography
-          variant="h4"
+        {/* Container for Title and Button */}
+        <Box
           sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             mb: 4,
-            fontFamily: "Poppins",
-            fontWeight: 500,
-            fontSize: "24px",
-            lineHeight: "100%",
-            letterSpacing: "0%",
-            color: "#152C5B",
-            mx: 10,
           }}
         >
-          Most Popular Ads
-        </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: "Poppins",
+              fontWeight: 500,
+              fontSize: "24px",
+              color: "#152C5B",
+            }}
+          >
+            Most Popular Ads
+          </Typography>
+
+          {/* This is the new button */}
+          <Button
+            onClick={() => navigate(ROUTES.EXPLORE)} // Use the imported ROUTES object
+            endIcon={<ArrowForwardIcon />}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+            }}
+          >
+            Explore All
+          </Button>
+        </Box>
 
         <Box
           display="grid"
@@ -90,7 +108,11 @@ export default function PopularAds() {
                 width: "100%",
                 borderRadius: "15px",
                 overflow: "hidden",
-                gridRow: index === 0 ? "span 2" : "auto",
+                gridRow: { md: index === 0 ? "span 2" : "auto" }, // Only apply grid span on md+ screens
+                // Added a group hover effect container
+                "&:hover .actions-overlay": {
+                  opacity: 1,
+                },
               }}
             >
               <Box
@@ -109,6 +131,8 @@ export default function PopularAds() {
                   left: 0,
                   width: "100%",
                   height: "100%",
+                  background:
+                    "linear-gradient(to top, rgba(0,0,0,0.5), transparent)", // Added gradient for better text readability
                 }}
               />
               <Typography
@@ -140,19 +164,28 @@ export default function PopularAds() {
                   Jakarta, Indonesia
                 </Typography>
               </Box>
+              {/* This Box is the overlay for the action buttons */}
               <Box
+                className="actions-overlay"
                 sx={{
                   position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%)",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                  opacity: 0, // Hidden by default
+                  transition: "opacity 0.3s", // Smooth transition
                 }}
               >
                 <IconButton
-                  sx={{ p: 0 }}
                   onClick={() => {
-                    AddFavorite(item?.room?._id);
-                    Navigate(ROUTES.FAVORITE);
+                    addFavorite(item?.room?._id);
+                    // I removed the navigation from here for better UX
                   }}
                 >
                   <FavoriteIcon sx={{ color: "#fff" }} />

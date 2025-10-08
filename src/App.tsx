@@ -35,7 +35,11 @@ function App() {
         { index: true, element: <LandingPage /> },
         { path: ROUTES.LANDING_PAGE.slice(1), element: <LandingPage /> },
         { path: ROUTES.EXPLORE.slice(1), element: <Explore /> },
-        { path: ROUTES.Rooms_Data.slice(1), element: <Rooms_Data /> },
+        // This is the updated line to make the route dynamic
+        {
+          path: `${ROUTES.Rooms_Data.slice(1)}/:roomId`,
+          element: <Rooms_Data />,
+        },
         { path: ROUTES.FAVORITE.slice(1), element: <Favorite /> },
       ],
     },
@@ -91,8 +95,6 @@ function App() {
             fontSize: "16px",
             maxWidth: "500px",
             padding: "16px 24px",
-            // backgroundColor: "var(--color-grey-0)",
-            // color: "var(--color-grey-700)",
           },
         }}
       />
