@@ -50,27 +50,45 @@ export default function Login() {
 
   const onSubmit = async (value: TUserLogin) => {
     try {
+      // ✅ Send login request
       const { data } = await axios.post(
-        `https://upskilling-egypt.com:3000/api/v0/admin/users/login`,
+        "https://upskilling-egypt.com:3000/api/v0/admin/users/login",
         value
       );
 
-      // 1. Get the token which is "Bearer ey..."
-      const fullToken = data.data.token;
+      // ✅ Ensure token exists and is valid
+      const fullToken = data?.data?.token;
+      if (!fullToken) {
+        throw new Error("Token not received from server.");
+      }
 
-      // 2. Split the string by the space and take the second part (the actual token)
-      const rawToken = fullToken.split(" ")[1];
+      // ✅ Extract raw token (strip 'Bearer ' prefix if included)
+      const rawToken = fullToken.startsWith("Bearer ")
+        ? fullToken.replace("Bearer ", "")
+        : fullToken;
 
-      // 3. Save only the raw token to the cookie with the root path
-      CookieService.set("token", rawToken, { path: "/" });
-      getUser();
+      // ✅ Store token securely in cookies with root path
+      CookieService.set("token", rawToken, {
+        path: "/",
+        secure: true,
+        sameSite: "Strict",
+      });
+
+      // ✅ Update auth context
+      await getUser();
+
+      // ✅ Redirect and show success toast
       navigate(ROUTES.LANDING_PAGE);
-      toast.success("✅ Welcome Dear!", { duration: 3000 });
+      toast.success("✅ Welcome back!", { duration: 3000 });
     } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(
-        err.response?.data?.message || "Something went wrong. Please try again."
-      );
+      const err = error as AxiosError<{ message?: string }>;
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(`❌ ${message}`);
+      console.error("Login error:", err);
     }
   };
 
@@ -123,7 +141,7 @@ export default function Login() {
               fontSize={"30px"}
               mb={"15px"}
             >
-              Sign up
+              Sign in
             </Typography>
             <Typography component="span">
               If you already have an account register

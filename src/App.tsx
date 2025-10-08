@@ -50,7 +50,7 @@ function App() {
           ),
         },
         {
-          path: ROUTES.PAYMENT.slice(1),
+          path: `${ROUTES.PAYMENT.slice(1)}/:bookingId`,
           element: (
             <AuthenticatedRoute>
               <PaymentForm />

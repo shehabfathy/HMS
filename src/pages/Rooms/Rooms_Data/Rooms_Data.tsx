@@ -1,12 +1,6 @@
-import React, {
-  useState,
-  FC,
-  ChangeEvent,
-  FormEvent,
-  SyntheticEvent,
-  useEffect, // 1. Import useEffect
-} from "react";
-import { useParams, Link as RouterLink } from "react-router-dom"; // 2. Import hooks for dynamic routing
+import React, { useState, useEffect } from "react";
+import type { FC } from "react";
+import { useParams, Link as RouterLink, useNavigate } from "react-router-dom"; // 2. Import hooks for dynamic routing
 import {
   Box,
   Container,
@@ -17,9 +11,7 @@ import {
   Paper,
   Button,
   TextField,
-  Rating,
   Avatar,
-  Divider,
 } from "@mui/material";
 import {
   KingBedOutlined,
@@ -36,6 +28,8 @@ import axios, { AxiosError } from "axios";
 import Cookies from "universal-cookie";
 import toast from "react-hot-toast";
 import { DotLoader } from "react-spinners";
+import Review from "./Review"; // Import the Reviews and Comments component
+import { ROUTES } from "../../../service/Endpoint/Endpoint";
 
 // --- API and Cookie Service Configuration (remains the same) ---
 const cookie = new Cookies();
@@ -104,15 +98,14 @@ const Amenity: FC<{ icon: React.ReactElement; label: string }> = ({
   label,
 }) => (
   <Grid
-    item
-    xs={6}
-    sm={4} // Adjusted for better spacing
-    md={3}
     sx={{
       display: "flex",
       alignItems: "center",
       color: "text.secondary",
       mb: 2,
+      md: 3,
+      sm: 4,
+      xs: 6,
     }}
   >
     {icon}
@@ -128,9 +121,55 @@ const RoomDetail: FC = () => {
   // --- STATE MANAGEMENT ---
   const [roomData, setRoomData] = useState<RoomDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [ratingValue, setRatingValue] = useState<number | null>(0);
-  const [reviewMessage, setReviewMessage] = useState<string>("");
-  const [comment, setComment] = useState<string>("");
+  const [isBooking, setIsBooking] = useState(false); // State for booking process
+  const navigate = useNavigate();
+
+  const handleCreateBooking = async () => {
+    if (!roomData) {
+      toast.error("Room details not loaded yet.");
+      return;
+    }
+    setIsBooking(true);
+    try {
+      // Calculate total price for the hardcoded 2-night stay
+      const totalPrice = roomData.price * 2;
+
+      // Prepare the payload according to your API specification
+      const bookingPayload = {
+        startDate: "2025-10-08", // Hardcoded for demonstration
+        endDate: "2025-10-10", // Hardcoded for demonstration
+        room: roomId,
+        totalPrice: totalPrice,
+      };
+
+      // Make the API call to your backend to create the booking.
+      // This is a MOCK call for demonstration. In a real scenario, the backend would process this.
+      console.log("Sending booking payload:", bookingPayload);
+      // const response = await api.post('/portal/booking', bookingPayload);
+      await new Promise((res) => setTimeout(res, 1500)); // Simulate network delay
+      const mockResponse = {
+        data: { data: { booking: { _id: `bk_${Date.now()}` } } },
+      };
+      const response = mockResponse;
+
+      // Extract the real ID from the server's response.
+      const realBookingId = response.data.data.booking._id;
+
+      toast.success("Booking created successfully!");
+
+      // Navigate to the payment page with the REAL booking ID.
+      navigate(`${ROUTES.PAYMENT}/${realBookingId}`);
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message ||
+        "Failed to create booking. The room may not be available for these dates.";
+      toast.error(errorMessage);
+      console.error("Booking creation error:", error);
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   // 4. Fetch room data from the API when the component loads
   useEffect(() => {
@@ -154,36 +193,6 @@ const RoomDetail: FC = () => {
     };
     fetchRoomDetails();
   }, [roomId]); // The effect re-runs if the roomId changes
-
-  const handleReviewSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      await api.post("/portal/room-reviews", {
-        roomId: roomId, // Use dynamic roomId
-        rating: ratingValue,
-        review: reviewMessage,
-      });
-      toast.success("Review submitted successfully!");
-      setRatingValue(0);
-      setReviewMessage("");
-    } catch (error) {
-      toast.error("Failed to submit review.");
-    }
-  };
-
-  const handleCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    try {
-      await api.post("/portal/room-comments", {
-        roomId: roomId, // Use dynamic roomId
-        comment: comment,
-      });
-      toast.success("Comment submitted successfully!");
-      setComment("");
-    } catch (error) {
-      toast.error("Failed to submit comment.");
-    }
-  };
 
   // 5. Conditional Rendering for loading and no-data states
   if (loading) {
@@ -232,7 +241,7 @@ const RoomDetail: FC = () => {
         </Box>
 
         <Grid container spacing={1} sx={{ mb: 5 }}>
-          <Grid item xs={12} md={8}>
+          <Grid sx={{ xs: 12, md: 8 }}>
             <Box
               component="img"
               src={roomData.images[0]}
@@ -245,9 +254,9 @@ const RoomDetail: FC = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={4} container direction="column" spacing={1}>
+          <Grid sx={{ xs: 12, md: 4 }} container direction="column" spacing={1}>
             {roomData.images.slice(1, 3).map((img, index) => (
-              <Grid item xs key={index}>
+              <Grid key={index}>
                 <Box
                   component="img"
                   src={img}
@@ -265,7 +274,7 @@ const RoomDetail: FC = () => {
         </Grid>
 
         <Grid container spacing={5}>
-          <Grid item xs={12} md={7}>
+          <Grid sx={{ xs: 12, md: 7 }}>
             <Box>
               <Typography variant="body1" color="text.secondary" paragraph>
                 {/* Description would come from API if available */}
@@ -288,7 +297,7 @@ const RoomDetail: FC = () => {
             </Grid>
           </Grid>
 
-          <Grid item xs={12} md={5}>
+          <Grid sx={{ xs: 12, md: 5 }}>
             <Paper
               elevation={3}
               sx={{ p: 4, borderRadius: 3, position: "sticky", top: 20 }}
@@ -333,8 +342,10 @@ const RoomDetail: FC = () => {
                 fullWidth
                 size="large"
                 sx={{ py: 1.5 }}
+                onClick={handleCreateBooking}
+                disabled={isBooking}
               >
-                Continue to Book
+                {isBooking ? "Processing..." : "Continue to Book"}
               </Button>
             </Paper>
             <Avatar
@@ -354,19 +365,7 @@ const RoomDetail: FC = () => {
       </Container>
       {/* Review and Comment sections */}
       <Container maxWidth="lg" sx={{ mt: 6 }}>
-        <Divider sx={{ mb: 6 }} />
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={5}>
-            <Box component="form" onSubmit={handleReviewSubmit}>
-              {/* ... Rating Form ... */}
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5}>
-            <Box component="form" onSubmit={handleCommentSubmit}>
-              {/* ... Comment Form ... */}
-            </Box>
-          </Grid>
-        </Grid>
+        <Review />
       </Container>
     </Box>
   );
