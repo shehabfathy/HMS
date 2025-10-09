@@ -1,4 +1,6 @@
 import type { ApiItem } from "../types/types";
+// Import the missing type from the Stripe package
+import type { StripeCheckout } from "@stripe/stripe-js";
 
 // Define the structure of a Facility object based on your API response
 export interface IFacility {
@@ -35,3 +37,24 @@ export interface FeaturedRoomsProps {
   title: string;
   rooms: Room[];
 }
+
+// Define a specific type for checkoutActions to avoid using 'any'
+export interface ICheckoutActions {
+  // NOTE: You should update these properties to match your actual object structure
+  onClose: () => void;
+  onComplete: (result: unknown) => void;
+}
+
+// Define the possible shapes for your result
+interface SuccessResult {
+  type: "success";
+  checkout: StripeCheckout; // This type is now recognized
+}
+
+interface OtherResult {
+  type: "other_type";
+  checkoutActions: ICheckoutActions; // This is now strongly typed
+}
+
+// Export the final union type
+export type CheckoutResult = SuccessResult | OtherResult;

@@ -147,13 +147,10 @@ const RoomDetail: FC = () => {
       console.log("Sending booking payload:", bookingPayload);
       // const response = await api.post('/portal/booking', bookingPayload);
       await new Promise((res) => setTimeout(res, 1500)); // Simulate network delay
-      const mockResponse = {
-        data: { data: { booking: { _id: `bk_${Date.now()}` } } },
-      };
-      const response = mockResponse;
+      const response = await api.post("/portal/booking", bookingPayload);
+      const realBookingId = response.data.data.booking._id;
 
       // Extract the real ID from the server's response.
-      const realBookingId = response.data.data.booking._id;
 
       toast.success("Booking created successfully!");
 
