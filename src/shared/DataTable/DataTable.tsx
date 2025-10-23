@@ -78,7 +78,7 @@ const DataTable = <T extends ApiItem>({
     fetchItems();
   }, [page, rowsPerPage, endpoint]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 

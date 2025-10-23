@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import CookieService from "../../../service/Cookies/Cookies";
 import toast from "react-hot-toast";
@@ -14,13 +14,17 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+} from "@mui/x-data-grid";
 import CloseIcon from "@mui/icons-material/Close";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { MoonLoader } from "react-spinners";
 import DeleteConfirmation from "../../../shared/DeleteConfirmation/DeleteConfirmation";
 
+// ---------------- TYPES ----------------
 export type TFacilityApi = {
   _id: string;
   name: string;
@@ -34,6 +38,7 @@ export type TFacility = {
   createdAt: string;
 };
 
+// ---------------- COMPONENT ----------------
 export default function Facilities_List() {
   const [facilitiesList, setFacilitiesList] = useState<TFacility[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<TFacility | null>(
@@ -54,8 +59,8 @@ export default function Facilities_List() {
     "https://upskilling-egypt.com:3000/api/v0/admin/room-facilities";
   const token = CookieService.get("token");
 
-  // ✅ Fetch all facilities
-  const handleFacilities = async () => {
+  // ---------------- FETCH FACILITIES ----------------
+  const handleFacilities = useCallback(async () => {
     try {
       const { data } = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
@@ -74,19 +79,18 @@ export default function Facilities_List() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     handleFacilities();
-  }, []);
+  }, [handleFacilities]);
 
-  // ✅ View Modal
+  // ---------------- MODAL HANDLERS ----------------
   const handleOpenView = (facility: TFacility) => {
     setSelectedFacility(facility);
     setOpen(true);
   };
 
-  // ✅ Add/Edit Modal
   const handleOpenAdd = (facility?: TFacility) => {
     setOpenAdd(true);
     if (facility) {
@@ -100,8 +104,20 @@ export default function Facilities_List() {
     }
   };
 
-  // ✅ Add or Update Facility
+  const handleCloseAdd = () => {
+    setOpenAdd(false);
+    setName("");
+    setUpdate(false);
+    setActiveRowId(null);
+  };
+
+  // ---------------- ADD / UPDATE ----------------
   const handleAddFacility = async () => {
+    if (!name.trim()) {
+      toast.error("Facility name cannot be empty");
+      return;
+    }
+
     setSaving(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
@@ -115,7 +131,7 @@ export default function Facilities_List() {
       }
 
       handleFacilities();
-      setOpenAdd(false);
+      handleCloseAdd();
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       toast.error(err.response?.data?.message || "Something went wrong");
@@ -124,7 +140,7 @@ export default function Facilities_List() {
     }
   };
 
-  // ✅ Delete Facility
+  // ---------------- DELETE ----------------
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -142,7 +158,7 @@ export default function Facilities_List() {
     }
   };
 
-  // ✅ Columns (no TS errors)
+  // ---------------- COLUMNS ----------------
   const columns: GridColDef<TFacility>[] = [
     {
       field: "name",
@@ -153,11 +169,21 @@ export default function Facilities_List() {
       field: "createdAt",
       headerName: "Created At",
       flex: 1,
-      valueGetter: (params) => params.row?.createdAt ?? "",
-      valueFormatter: (params) => {
-        if (!params.value) return "N/A";
-        const date = new Date(params.value);
-        return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+      // Explicitly type the params
+      valueGetter: (params: { row: TFacility }) => params.row.createdAt,
+      valueFormatter: (params: { row: TFacility }) => {
+        const value = params.row.createdAt;
+        if (!value) return "N/A";
+        const date = new Date(value);
+        return isNaN(date.getTime())
+          ? "Invalid Date"
+          : date.toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
       },
     },
     {
@@ -182,24 +208,24 @@ export default function Facilities_List() {
           >
             <MenuItem
               onClick={() => {
-                handleOpenView(params.row);
                 setAnchorEl(null);
+                handleOpenView(params.row);
               }}
             >
               View
             </MenuItem>
             <MenuItem
               onClick={() => {
-                handleOpenAdd(params.row);
                 setAnchorEl(null);
+                handleOpenAdd(params.row);
               }}
             >
               Edit
             </MenuItem>
             <MenuItem
               onClick={() => {
-                setOpenDelete(true);
                 setAnchorEl(null);
+                setOpenDelete(true);
               }}
             >
               Delete
@@ -210,8 +236,10 @@ export default function Facilities_List() {
     },
   ];
 
+  // ---------------- RETURN ----------------
   return (
     <Box p={3}>
+      {/* Header */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -235,7 +263,7 @@ export default function Facilities_List() {
         </Button>
       </Box>
 
-      {/* ✅ Table */}
+      {/* Table */}
       {loading ? (
         <Box
           display="flex"
@@ -259,8 +287,8 @@ export default function Facilities_List() {
         </Paper>
       )}
 
-      {/* ✅ Add/Edit Modal */}
-      <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
+      {/* Add/Edit Modal */}
+      <Modal open={openAdd} onClose={handleCloseAdd}>
         <Box
           sx={{
             position: "absolute",
@@ -283,7 +311,7 @@ export default function Facilities_List() {
             <Typography variant="h6">
               {update ? "Update Facility" : "Add Facility"}
             </Typography>
-            <IconButton onClick={() => setOpenAdd(false)}>
+            <IconButton onClick={handleCloseAdd}>
               <CloseIcon color="error" />
             </IconButton>
           </Box>
@@ -306,7 +334,7 @@ export default function Facilities_List() {
         </Box>
       </Modal>
 
-      {/* ✅ View Modal */}
+      {/* View Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{
@@ -337,7 +365,7 @@ export default function Facilities_List() {
         </Box>
       </Modal>
 
-      {/* ✅ Delete Modal */}
+      {/* Delete Modal */}
       <Modal open={openDelete} onClose={() => setOpenDelete(false)}>
         <Box
           sx={{
