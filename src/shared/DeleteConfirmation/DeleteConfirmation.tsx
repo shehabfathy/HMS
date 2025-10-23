@@ -1,16 +1,19 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { deleteImg } from "../../assets";
+import { LoadingButton } from "@mui/lab";
 
 type DeleteConfirmationProps = {
   deleteItem: string;
   confirmDelete: () => void;
   cancelDelete: () => void;
+  saving: boolean;
 };
 
 export default function DeleteConfirmation({
   deleteItem,
   confirmDelete,
   cancelDelete,
+  saving,
 }: DeleteConfirmationProps) {
   return (
     <Box
@@ -41,18 +44,20 @@ export default function DeleteConfirmation({
       </Typography>
 
       <Box mt={2} display="flex" gap={2}>
-        <Button
+        <LoadingButton
           variant="contained"
+          loading={saving}
           color="error"
-          onClick={() => {
-            confirmDelete();
+          onClick={async () => {
+            await confirmDelete();
+            cancelDelete();
           }}
         >
           Confirm
-        </Button>
-        <Button variant="outlined" onClick={() => cancelDelete()}>
+        </LoadingButton>
+        <LoadingButton variant="outlined" onClick={() => cancelDelete()}>
           Cancel
-        </Button>
+        </LoadingButton>
       </Box>
     </Box>
   );

@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import type { DataTableProps, ApiItem } from "../../types/types"; // Import the new types
+import type { AxiosError } from "axios";
 
 /**
  * A reusable, type-safe data table component.
@@ -61,7 +62,8 @@ const DataTable = <T extends ApiItem>({
 
         setItems(itemsList);
         setTotalItems(responseData.totalCount || 0);
-      } catch (err: any) {
+      } catch (error) {
+        const err = error as AxiosError<{ message?: string }>;
         // Catch as 'any' to safely access response properties
         setError(
           err.response?.data?.message ||

@@ -9,9 +9,10 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import { AxiosError } from "axios"; // Assuming you use axios for typing
-import api from "../../../utils/axios/axiosInstance";
+import axios, { AxiosError } from "axios"; // Assuming you use axios for typing
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
+import CookieService from "../../../service/Cookies/Cookies";
 
 // --- End Mocking ---
 
@@ -21,6 +22,8 @@ interface ReviewsAndCommentsProps {
 }
 
 const ReviewsAndComments = ({ roomId }: ReviewsAndCommentsProps) => {
+  const location = useLocation();
+  const roomID = location.pathname.slice(12);
   const [ratingValue, setRatingValue] = useState<number | null>(0);
   const [reviewMessage, setReviewMessage] = useState<string>("");
   const [comment, setComment] = useState<string>("");
@@ -28,11 +31,21 @@ const ReviewsAndComments = ({ roomId }: ReviewsAndCommentsProps) => {
   const handleReviewSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await api.post("/portal/room-reviews", {
-        roomId: roomId, // Use dynamic roomId
-        rating: ratingValue,
-        review: reviewMessage,
-      });
+      console.log(roomId, ratingValue, reviewMessage); // Use dynamic roomId
+      await axios.post(
+        "https://upskilling-egypt.com:3000/api/v0/portal/room-reviews",
+        {
+          roomId: roomID, // Use dynamic roomId
+          rating: ratingValue,
+          review: reviewMessage,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${CookieService.get("token")}`,
+          },
+        }
+      );
+
       toast.success("Review submitted successfully!");
       setRatingValue(0);
       setReviewMessage("");
@@ -45,10 +58,19 @@ const ReviewsAndComments = ({ roomId }: ReviewsAndCommentsProps) => {
   const handleCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await api.post("/portal/room-comments", {
-        roomId: roomId, // Use dynamic roomId
-        comment: comment,
-      });
+      console.log(roomID, comment);
+      await axios.post(
+        "https://upskilling-egypt.com:3000/api/v0/portal/room-comments",
+        {
+          roomId: roomID, // Use dynamic roomId
+          comment: comment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${CookieService.get("token")}`,
+          },
+        }
+      );
       toast.success("Comment submitted successfully!");
       setComment("");
     } catch (error) {

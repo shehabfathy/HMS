@@ -1,13 +1,14 @@
 import { Box, Breadcrumbs, Link, styled, Typography } from "@mui/material";
 import axios, { AxiosError } from "axios";
 import usePagination from "@mui/material/usePagination";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
 import { DotLoader } from "react-spinners";
 import NoData from "../../shared/NOData/NoData";
 import { roomImg } from "../../assets";
 import type { tExRoom } from "../../types/types";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Explore() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ export default function Explore() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1); // State to hold total pages from API
   const { state } = useLocation();
+  const { loginData } = useContext(AuthContext)!;
 
   // Pagination now uses the dynamic totalPages count
   const { items } = usePagination({
@@ -121,7 +123,13 @@ export default function Explore() {
               {rooms.map((item) => (
                 <RouterLink
                   key={item._id}
-                  to={`/rooms-data/${item._id}`}
+                  to={loginData ? `/rooms-data/${item._id}` : "#"}
+                  onClick={(e) => {
+                    if (!loginData) {
+                      e.preventDefault();
+                      toast.error("You should Login First");
+                    }
+                  }}
                   style={{ textDecoration: "none", width: "100%" }}
                 >
                   <Box
@@ -179,10 +187,10 @@ export default function Explore() {
                       }}
                     >
                       <Typography color="inherit" fontWeight="bold">
-                        {item.roomNumber}
+                        {item?.roomNumber}
                       </Typography>
                       <Typography color="inherit" variant="body2">
-                        {item.facilities.map((f) => f.name).join(" • ")}
+                        {item?.facilities.map((f) => f.name).join(" • ")}
                       </Typography>
                     </Box>
                   </Box>

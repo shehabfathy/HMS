@@ -95,8 +95,11 @@ export default function Main() {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          error:
-                            startDate && endDate && endDate.isBefore(startDate),
+                          error: !!(
+                            startDate &&
+                            endDate &&
+                            endDate.isBefore(startDate)
+                          ),
                           helperText:
                             startDate && endDate && endDate.isBefore(startDate)
                               ? "End date cannot be before start date"

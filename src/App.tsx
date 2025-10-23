@@ -25,6 +25,7 @@ import LandingPage from "./pages/LandingPage/LandingPage";
 import Explore from "./pages/LandingPage/Explore";
 import Favorite from "./pages/LandingPage/Favorite";
 import PaymentForm from "./pages/Payment/Payment";
+import Profile from "./pages/Profile/UserProfile ";
 
 function App() {
   const routes = createBrowserRouter([
@@ -41,6 +42,7 @@ function App() {
           path: `${ROUTES.Rooms_Data.slice(1)}/:roomId`,
           element: <Rooms_Data />,
         },
+        { path: ROUTES.PROFILE.slice(1), element: <Profile /> },
         {
           path: ROUTES.FAVORITE.slice(1),
           element: (
@@ -68,7 +70,6 @@ function App() {
         { path: ROUTES.REGISTER, element: <Register /> },
         { path: ROUTES.FORGET_PASSWORD, element: <ForgetPassword /> },
         { path: ROUTES.RESET_PASSWORD, element: <ResetPassword /> },
-        { path: ROUTES.CHANGE_PASSWORD, element: <ChangePassword /> },
       ],
     },
     {
@@ -81,6 +82,7 @@ function App() {
       errorElement: <NOtFound />,
       children: [
         { index: true, element: <Dashboard /> },
+        { path: ROUTES.CHANGE_PASSWORD.slice(1), element: <ChangePassword /> },
         { path: ROUTES.Users.slice(1), element: <UsersList /> },
         { path: ROUTES.Ads_List.slice(1), element: <Ads_List /> },
         { path: ROUTES.Ads_Data.slice(1), element: <Ads_Data /> },
@@ -89,7 +91,6 @@ function App() {
         { path: ROUTES.Facilities_List.slice(1), element: <Facilities_List /> },
         { path: ROUTES.Facilities_Data.slice(1), element: <Facilities_Data /> },
         { path: ROUTES.Booking.slice(1), element: <Booking /> },
-        // { path: ROUTES.PROFILE.slice(1), element: <UserProfile /> },
       ],
     },
   ]);

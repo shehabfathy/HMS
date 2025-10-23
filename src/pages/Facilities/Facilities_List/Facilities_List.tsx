@@ -1,7 +1,7 @@
-import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef } from "@mui/x-data-grid";
-import { LoadingButton } from "@mui/lab";
-import Paper from "@mui/material/Paper";
+import { useEffect, useState } from "react";
+import axios, { AxiosError } from "axios";
+import CookieService from "../../../service/Cookies/Cookies";
+import toast from "react-hot-toast";
 import {
   Box,
   Button,
@@ -9,19 +9,18 @@ import {
   Menu,
   MenuItem,
   Modal,
+  Paper,
   TextField,
   Typography,
 } from "@mui/material";
-import axios, { AxiosError } from "axios";
-import React, { useEffect, useState } from "react";
-import CookieService from "../../../service/Cookies/Cookies";
+import { LoadingButton } from "@mui/lab";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import CloseIcon from "@mui/icons-material/Close";
-import toast from "react-hot-toast";
-import { MoonLoader } from "react-spinners";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { MoonLoader } from "react-spinners";
 import DeleteConfirmation from "../../../shared/DeleteConfirmation/DeleteConfirmation";
 
-// TypeScript types
 export type TFacilityApi = {
   _id: string;
   name: string;
@@ -43,49 +42,24 @@ export default function Facilities_List() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
-  const [anchor, setAnchor] = useState<null | HTMLElement>(null);
-  const [rowId, setRowId] = useState<null | string>(null);
-  const [name, setName] = useState<string>("");
-  const [saving, setSaving] = useState(false);
-  const [Update, setUpdate] = useState(false);
-
-  // View Modal
-  const handleOpen = (facility: TFacility) => {
-    setSelectedFacility(facility);
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setSelectedFacility(null);
-    setOpen(false);
-  };
-
-  // Add/Edit Modal
-  const handleOpenAdd = (facility?: TFacility) => {
-    setOpenAdd(true);
-    if (Update && facility) {
-      setSelectedFacility(facility);
-      setName(facility.name);
-    }
-  };
-  const handleCloseAdd = () => {
-    setOpenAdd(false);
-    setName("");
-  };
-
-  // Delete Modal
   const [openDelete, setOpenDelete] = useState(false);
-  const handleOpenDelete = () => setOpenDelete(true);
-  const handleCloseDelete = () => setOpenDelete(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeRowId, setActiveRowId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [update, setUpdate] = useState(false);
 
-  // Get all facilities
+  const API_URL =
+    "https://upskilling-egypt.com:3000/api/v0/admin/room-facilities";
+  const token = CookieService.get("token");
+
+  // ✅ Fetch all facilities
   const handleFacilities = async () => {
     try {
-      const { data } = await axios.get(
-        `https://upskilling-egypt.com:3000/api/v0/admin/room-facilities`,
-        {
-          headers: { Authorization: `Bearer ${CookieService.get("token")}` },
-        }
-      );
+      const { data } = await axios.get(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const rows: TFacility[] = data.data.facilities.map((f: TFacilityApi) => ({
         id: f._id,
@@ -94,57 +68,11 @@ export default function Facilities_List() {
       }));
 
       setFacilitiesList(rows);
-      setLoading(false);
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       toast.error(err.response?.data?.message || "Can't fetch facilities");
+    } finally {
       setLoading(false);
-    }
-  };
-
-  // Add / Update Facility
-  const handleAddFacility = async () => {
-    setSaving(true);
-    try {
-      if (Update && rowId) {
-        await axios.put(
-          `https://upskilling-egypt.com:3000/api/v0/admin/room-facilities/${rowId}`,
-          { name },
-          { headers: { Authorization: `Bearer ${CookieService.get("token")}` } }
-        );
-        toast.success("Facility updated successfully");
-      } else {
-        await axios.post(
-          `https://upskilling-egypt.com:3000/api/v0/admin/room-facilities`,
-          { name },
-          { headers: { Authorization: `Bearer ${CookieService.get("token")}` } }
-        );
-        toast.success("Facility added successfully");
-      }
-
-      setSaving(false);
-      handleCloseAdd();
-      handleFacilities();
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || "Something went wrong");
-      setSaving(false);
-    }
-  };
-
-  // Delete Facility
-  const handleDelete = async () => {
-    try {
-      await axios.delete(
-        `https://upskilling-egypt.com:3000/api/v0/admin/room-facilities/${rowId}`,
-        { headers: { Authorization: `Bearer ${CookieService.get("token")}` } }
-      );
-      toast.success("Facility deleted successfully");
-      handleCloseDelete();
-      handleFacilities();
-    } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || "Can't delete facility");
     }
   };
 
@@ -152,58 +80,126 @@ export default function Facilities_List() {
     handleFacilities();
   }, []);
 
-  const columns: GridColDef[] = [
-    { field: "name", headerName: "Facility Name", flex: 1 },
+  // ✅ View Modal
+  const handleOpenView = (facility: TFacility) => {
+    setSelectedFacility(facility);
+    setOpen(true);
+  };
+
+  // ✅ Add/Edit Modal
+  const handleOpenAdd = (facility?: TFacility) => {
+    setOpenAdd(true);
+    if (facility) {
+      setUpdate(true);
+      setName(facility.name);
+      setActiveRowId(facility.id);
+    } else {
+      setUpdate(false);
+      setName("");
+      setActiveRowId(null);
+    }
+  };
+
+  // ✅ Add or Update Facility
+  const handleAddFacility = async () => {
+    setSaving(true);
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+
+      if (update && activeRowId) {
+        await axios.put(`${API_URL}/${activeRowId}`, { name }, { headers });
+        toast.success("Facility updated successfully");
+      } else {
+        await axios.post(API_URL, { name }, { headers });
+        toast.success("Facility added successfully");
+      }
+
+      handleFacilities();
+      setOpenAdd(false);
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ✅ Delete Facility
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await axios.delete(`${API_URL}/${activeRowId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Facility deleted successfully");
+      handleFacilities();
+      setOpenDelete(false);
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || "Can't delete facility");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // ✅ Columns (no TS errors)
+  const columns: GridColDef<TFacility>[] = [
+    {
+      field: "name",
+      headerName: "Facility Name",
+      flex: 1,
+    },
     {
       field: "createdAt",
       headerName: "Created At",
       flex: 1,
-      valueFormatter: (params) =>
-        new Date(params.value as string).toLocaleString(),
+      valueGetter: (params) => params.row?.createdAt ?? "",
+      valueFormatter: (params) => {
+        if (!params.value) return "N/A";
+        const date = new Date(params.value);
+        return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+      },
     },
     {
       field: "action",
       headerName: "Action",
       flex: 1,
-      renderCell: (params) => (
+      renderCell: (params: GridRenderCellParams<TFacility>) => (
         <>
           <IconButton
             onClick={(e) => {
-              setAnchor(e.currentTarget);
-              setRowId(params.row.id);
+              setAnchorEl(e.currentTarget);
+              setActiveRowId(params.row.id);
             }}
           >
             <MoreHorizIcon />
           </IconButton>
+
           <Menu
-            open={Boolean(anchor)}
-            anchorEl={anchor}
-            onClose={() => {
-              setAnchor(null);
-              setRowId(null);
-            }}
+            open={Boolean(anchorEl) && activeRowId === params.row.id}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
           >
             <MenuItem
               onClick={() => {
-                handleOpen(params.row);
-                setAnchor(null);
+                handleOpenView(params.row);
+                setAnchorEl(null);
               }}
             >
               View
             </MenuItem>
             <MenuItem
               onClick={() => {
-                setUpdate(true);
                 handleOpenAdd(params.row);
-                setAnchor(null);
+                setAnchorEl(null);
               }}
             >
               Edit
             </MenuItem>
             <MenuItem
               onClick={() => {
-                handleOpenDelete();
-                setAnchor(null);
+                setOpenDelete(true);
+                setAnchorEl(null);
               }}
             >
               Delete
@@ -214,131 +210,123 @@ export default function Facilities_List() {
     },
   ];
 
-  const paginationModel = { page: 0, pageSize: 5 };
-
   return (
-    <Box p={2} sx={{ height: "100vh" }}>
+    <Box p={3}>
       <Box
-        display={"flex"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
       >
-        <Box py={3}>
-          <Typography variant="h5" component="p">
-            Facilities Table
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Facilities
           </Typography>
-          <Typography component="span">You can check all details</Typography>
+          <Typography color="text.secondary">
+            Manage all available facilities
+          </Typography>
         </Box>
         <Button
-          onClick={() => {
-            setUpdate(false);
-            handleOpenAdd();
-          }}
           variant="contained"
-          sx={{ textTransform: "capitalize", paddingX: "30px" }}
+          sx={{ textTransform: "capitalize" }}
+          onClick={() => handleOpenAdd()}
         >
-          Add New Facility
+          Add Facility
         </Button>
       </Box>
 
-      {/* Delete Modal */}
-      <Modal open={openDelete} onClose={handleCloseDelete}>
+      {/* ✅ Table */}
+      {loading ? (
         <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 6,
-          }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="60vh"
         >
-          <DeleteConfirmation
-            deleteItem={"Facility"}
-            confirmDelete={handleDelete}
-            cancelDelete={handleCloseDelete}
-          />
+          <MoonLoader size={50} color="#1976d2" />
         </Box>
-      </Modal>
+      ) : (
+        <Paper sx={{ height: 420, p: 1, borderRadius: 3, boxShadow: 3 }}>
+          <DataGrid
+            rows={facilitiesList}
+            columns={columns}
+            pageSizeOptions={[5, 10]}
+            initialState={{
+              pagination: { paginationModel: { page: 0, pageSize: 5 } },
+            }}
+            sx={{ border: 0 }}
+          />
+        </Paper>
+      )}
 
-      {/* Add/Edit Modal */}
-      <Modal open={openAdd} onClose={handleCloseAdd}>
+      {/* ✅ Add/Edit Modal */}
+      <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
         <Box
           sx={{
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
             bgcolor: "background.paper",
-            border: "2px solid #000",
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
+            width: 400,
           }}
         >
           <Box
-            display={"flex"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-            sx={{ mb: 2 }}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
           >
             <Typography variant="h6">
-              {Update ? "Update Facility" : "Add Facility"}
+              {update ? "Update Facility" : "Add Facility"}
             </Typography>
-            <IconButton
-              onClick={handleCloseAdd}
-              sx={{
-                color: "red",
-                borderRadius: "50%",
-                border: "1px solid red",
-              }}
-            >
-              <CloseIcon sx={{ fontSize: "20px" }} />
+            <IconButton onClick={() => setOpenAdd(false)}>
+              <CloseIcon color="error" />
             </IconButton>
           </Box>
           <TextField
+            fullWidth
+            label="Facility Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Facility Name"
-            fullWidth
             sx={{ mb: 2 }}
           />
-          <Box textAlign={"right"}>
+          <Box textAlign="right">
             <LoadingButton
-              variant="contained"
               loading={saving}
+              variant="contained"
               onClick={handleAddFacility}
             >
-              {Update ? "Update" : "Save"}
+              {update ? "Update" : "Save"}
             </LoadingButton>
           </Box>
         </Box>
       </Modal>
 
-      {/* View Modal */}
-      <Modal open={open} onClose={handleClose}>
+      {/* ✅ View Modal */}
+      <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
             bgcolor: "background.paper",
-            border: "2px solid #000",
+            borderRadius: 2,
             boxShadow: 24,
             p: 4,
+            width: 400,
           }}
         >
           {selectedFacility ? (
             <>
-              <Typography variant="h6">
+              <Typography variant="h6" gutterBottom>
                 Facility: {selectedFacility.name}
               </Typography>
-              <Typography>
+              <Typography color="text.secondary">
                 Created At:{" "}
                 {new Date(selectedFacility.createdAt).toLocaleString()}
               </Typography>
@@ -349,27 +337,29 @@ export default function Facilities_List() {
         </Box>
       </Modal>
 
-      {/* Table */}
-      {loading ? (
+      {/* ✅ Delete Modal */}
+      <Modal open={openDelete} onClose={() => setOpenDelete(false)}>
         <Box
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          height="60vh"
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 4,
+            width: 400,
+          }}
         >
-          <MoonLoader size={50} color="#1976d2" />
-        </Box>
-      ) : (
-        <Paper sx={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={facilitiesList}
-            columns={columns}
-            initialState={{ pagination: { paginationModel } }}
-            pageSizeOptions={[5, 10]}
-            sx={{ border: 0 }}
+          <DeleteConfirmation
+            deleteItem="Facility"
+            confirmDelete={handleDelete}
+            cancelDelete={() => setOpenDelete(false)}
+            saving={deleting}
           />
-        </Paper>
-      )}
+        </Box>
+      </Modal>
     </Box>
   );
 }

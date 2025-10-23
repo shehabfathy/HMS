@@ -155,7 +155,7 @@ const RoomDetail: FC = () => {
       toast.success("Booking created successfully!");
 
       // Navigate to the payment page with the REAL booking ID.
-      navigate(`${ROUTES.PAYMENT}/${realBookingId}`);
+      navigate(`${ROUTES.PAYMENT}/${realBookingId}`, { state: roomId });
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       const errorMessage =

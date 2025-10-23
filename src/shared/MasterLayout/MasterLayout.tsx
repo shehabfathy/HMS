@@ -2,10 +2,24 @@ import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import CookieService from "../../service/Cookies/Cookies"; // Adjust path as needed
 import { ROUTES } from "../../service/Endpoint/Endpoint";
+import type { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+
+// Icons
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import AppsIcon from "@mui/icons-material/Apps";
 import SettingsIcon from "@mui/icons-material/Settings";
-// Import Material-UI components & utilities
+import {
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+  Dashboard as DashboardIcon,
+  Book as BookIcon,
+  People as PeopleIcon,
+  Logout as LogoutIcon,
+  AccountCircleOutlined as AccountCircleOutlinedIcon,
+  Bed as BedIcon,
+} from "@mui/icons-material";
+
+// Material UI components
 import {
   AppBar as MuiAppBar,
   Box,
@@ -27,45 +41,31 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-// Import Material-UI icons for the sidebar and navbar
-import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
-  Dashboard as DashboardIcon,
-  Book as BookIcon,
-  People as PeopleIcon, // Using 'People' for 'Users' for clarity
-  Logout as LogoutIcon,
-  AccountCircleOutlined as AccountCircleOutlinedIcon,
-  Bed as BedIcon,
-} from "@mui/icons-material";
-
 const drawerWidth = 240;
 
-// Navigation items for the sidebar
+// Navigation items for sidebar
 const navItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "" },
   { text: "Bookings", icon: <BookIcon />, path: ROUTES.Booking },
   { text: "Users", icon: <PeopleIcon />, path: ROUTES.Users },
   { text: "Rooms", icon: <BedIcon />, path: ROUTES.Rooms_List },
   { text: "Ads", icon: <DynamicFormIcon />, path: ROUTES.Ads_List },
+  { text: "Facilities", icon: <AppsIcon />, path: ROUTES.Facilities_List },
   {
-    text: "Facilities",
-    icon: <AppsIcon />,
-    path: ROUTES.Facilities_List,
-  },
-  {
-    text: "change Password",
+    text: "Change Password",
     icon: <SettingsIcon />,
     path: ROUTES.CHANGE_PASSWORD,
   },
 ];
 
-// --- Styled Components for Smooth Transitions ---
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
 
-// This custom AppBar will resize itself when the drawer opens or closes
+// --- Styled Components ---
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+})<AppBarProps>(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
@@ -81,7 +81,6 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-// This custom Drawer provides the open/close animations
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -89,8 +88,8 @@ const Drawer = styled(MuiDrawer, {
     position: "relative",
     whiteSpace: "nowrap",
     width: drawerWidth,
-    backgroundColor: "#1F263E", // Custom sidebar color
-    color: "white", // Text color for the sidebar
+    backgroundColor: "#1F263E",
+    color: "white",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -102,9 +101,7 @@ const Drawer = styled(MuiDrawer, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      // Collapsed width on desktop
       width: theme.spacing(7),
-      // On smaller screens, it should be fully hidden
       [theme.breakpoints.down("sm")]: {
         width: 0,
       },
@@ -112,11 +109,10 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-// --- Main Layout Component ---
-
+// --- Master Layout Component ---
 export default function MasterLayout() {
-  const [open, setOpen] = useState(true); // State to control drawer visibility
-  const [anchorElUser, setAnchorElUser] = useState(null); // State for profile menu
+  const [open, setOpen] = useState(true);
+  const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -124,7 +120,7 @@ export default function MasterLayout() {
     setOpen(!open);
   };
 
-  const handleOpenUserMenu = (event) => {
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
 
@@ -133,8 +129,8 @@ export default function MasterLayout() {
   };
 
   const handleLogout = () => {
-    CookieService.remove("token"); // Remove the auth token
-    navigate("/login"); // Redirect to login page
+    CookieService.remove("token");
+    navigate("/login");
     handleCloseUserMenu();
   };
 
@@ -147,6 +143,10 @@ export default function MasterLayout() {
         position="absolute"
         open={open}
         sx={{
+          width: {
+            xs: "100%",
+            md: `calc(100% - ${drawerWidth}px)`,
+          },
           bgcolor: "white",
           color: "text.primary",
           boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
@@ -165,6 +165,7 @@ export default function MasterLayout() {
           >
             <MenuIcon />
           </IconButton>
+
           <Typography
             component="h1"
             variant="h6"
@@ -174,19 +175,26 @@ export default function MasterLayout() {
             Staycation Admin
           </Typography>
 
-          {/* User Profile Section */}
+          {/* User Profile Menu */}
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               <Avatar alt="User Name" src="/static/images/avatar/2.jpg" />
             </IconButton>
           </Tooltip>
+
           <Menu
             sx={{ mt: "45px" }}
             id="menu-appbar"
             anchorEl={anchorElUser}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
             keepMounted
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
@@ -202,12 +210,55 @@ export default function MasterLayout() {
               </ListItemIcon>
               <Typography textAlign="center">Logout</Typography>
             </MenuItem>
+
+            <MenuItem
+              sx={{ display: { sx: "block", md: "none" } }}
+              onClick={() => navigate(ROUTES.DASHBOARD)}
+            >
+              <Typography textAlign="center" display={"flex"}>
+                {" "}
+                <DashboardIcon
+                  fontSize="small"
+                  sx={{ color: "#8f8f8f", mr: "10px" }}
+                />{" "}
+                DashBoard
+              </Typography>
+            </MenuItem>
+            <MenuItem
+              sx={{ display: { sx: "block", md: "none" } }}
+              onClick={() => navigate(ROUTES.Rooms_List.slice(1))}
+            >
+              <Typography textAlign="center" display={"flex"}>
+                <BedIcon
+                  fontSize="small"
+                  sx={{ color: "#8f8f8f", mr: "10px" }}
+                />{" "}
+                Rooms
+              </Typography>
+            </MenuItem>
+
+            <MenuItem
+              sx={{ display: { sx: "block", md: "none" } }}
+              onClick={() => navigate(ROUTES.Ads_List.slice(1))}
+            >
+              <Typography textAlign="center" display={"flex"}>
+                <DynamicFormIcon
+                  fontSize="small"
+                  sx={{ color: "#8f8f8f", mr: "10px" }}
+                />
+                Ads
+              </Typography>
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
 
-      {/* Left Side Navigation Drawer */}
-      <Drawer variant="permanent" open={open}>
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant="permanent"
+        open={open}
+        sx={{ display: { xs: "none", md: "block" } }}
+      >
         <Toolbar
           sx={{
             display: "flex",
@@ -220,7 +271,9 @@ export default function MasterLayout() {
             <ChevronLeftIcon />
           </IconButton>
         </Toolbar>
+
         <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.2)" }} />
+
         <List component="nav">
           {navItems.map((item) => (
             <ListItem key={item.text} disablePadding>
@@ -249,9 +302,8 @@ export default function MasterLayout() {
           overflow: "auto",
         }}
       >
-        <Toolbar /> {/* Spacer to push content below the AppBar */}
+        <Toolbar />
         <Box>
-          {/* The Outlet will render the matched child route component */}
           <Outlet />
         </Box>
       </Box>

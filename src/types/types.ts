@@ -31,13 +31,26 @@ export interface DataTableProps<T extends ApiItem> {
   headerContent?: React.ReactNode;
 }
 
-export type LoginData = {
-  _id: string;
-  role: "admin" | "user";
-  verified: boolean;
-  iat: number;
-  exp: number;
+export type tRegister = {
+  confirmPassword: string;
+  country: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  profileImage: File[];
+  role: string;
+  userName: string;
 };
+
+export interface LoginData {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  createdAt?: string;
+  exp?: number; // from JWT
+  iat?: number; // from JWT
+}
 
 export type AuthContextType = {
   loginData: LoginData | null;
@@ -127,18 +140,6 @@ export type TAds = {
   Active: boolean;
 };
 
-export type TFacilityApi = {
-  _id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type TFacility = {
-  id: string;
-  name: string;
-};
-
 // ++ ADD THIS TYPE ++
 export type HeaderProps = {
   isLoggedIn: boolean;
@@ -150,12 +151,26 @@ export type HeaderProps = {
  * It requires an `_id` property for keying in React lists.
  */
 
+export type SelectedAds = {
+  id: string;
+  image: string;
+  Discount: number;
+  Capacity: number;
+  price: number;
+  Active: boolean;
+  roomName: string;
+};
+
 export type tExRoom = {
   _id: string;
   images: string[];
   price: number;
   name?: string;
   location?: string;
+  roomNumber: string;
+  facilities: {
+    name: string;
+  }[];
 };
 
 export type tPopAds = {
@@ -165,4 +180,34 @@ export type tPopAds = {
     price: number;
     _id: string;
   };
+};
+
+export type tRoomList = {
+  capacity: number;
+  createdAt: string;
+  createdBy: {
+    _id: string;
+    userName: string;
+  };
+  discount: number;
+  facilities: object[];
+  images: string[];
+  price: number;
+  roomNumber: string;
+  updatedAt: string;
+  _id: string;
+};
+
+export type TFacilityApi = {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ✅ This is the type used for DataGrid rows
+export type TFacility = {
+  id: string;
+  name: string;
+  createdAt: string;
 };

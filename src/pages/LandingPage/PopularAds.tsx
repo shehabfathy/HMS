@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import axios, { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import type { tPopAds } from "../../types/types";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -9,8 +9,10 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward"; // Import arrow
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../service/Endpoint/Endpoint";
 import CookieService from "../../service/Cookies/Cookies";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function PopularAds() {
+  const { loginData } = useContext(AuthContext)!;
   const [Ads, setAds] = useState<tPopAds[]>([]);
   const navigate = useNavigate();
 
@@ -39,6 +41,7 @@ export default function PopularAds() {
           },
         }
       );
+      console.log(data);
       toast.success(data.message);
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
@@ -98,7 +101,7 @@ export default function PopularAds() {
           gap={2}
           mb={5}
         >
-          {Ads.map((item, index) => (
+          {Ads.slice(0, 5).map((item, index) => (
             <Box
               key={item._id}
               mb={{ xs: 2 }}
@@ -184,13 +187,27 @@ export default function PopularAds() {
               >
                 <IconButton
                   onClick={() => {
-                    addFavorite(item?.room?._id);
+                    if (loginData) {
+                      addFavorite(item?.room?._id);
+                      navigate(ROUTES.FAVORITE);
+                    } else {
+                      toast.error("You should login First");
+                    }
                     // I removed the navigation from here for better UX
                   }}
                 >
                   <FavoriteIcon sx={{ color: "#fff" }} />
                 </IconButton>
-                <IconButton>
+                <IconButton
+                  onClick={() => {
+                    if (loginData) {
+                      navigate(`${ROUTES.Rooms_Data}/${item?.room?._id}`);
+                    } else {
+                      toast.error("You should login First");
+                    }
+                    // I removed the navigation from here for better UX
+                  }}
+                >
                   <RemoveRedEyeIcon sx={{ color: "#fff" }} />
                 </IconButton>
               </Box>

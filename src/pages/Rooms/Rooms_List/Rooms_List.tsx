@@ -29,6 +29,7 @@ import {
 
 // Import types from the central interfaces file
 import type { IRoom } from "../../../interfaces/interfaces";
+import type { AxiosError } from "axios";
 
 export default function RoomsList() {
   // State for menu and modals
@@ -63,7 +64,8 @@ export default function RoomsList() {
       toast.success("Room deleted successfully!");
       setDeleteModalOpen(false);
       setRefetch(!refetch); // Toggle refetch to update the table
-    } catch (err) {
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
       toast.error(err.response?.data?.message || "Failed to delete room.");
     }
   };

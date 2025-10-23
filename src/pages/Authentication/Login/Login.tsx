@@ -27,6 +27,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { ROUTES } from "../../../service/Endpoint/Endpoint";
 export default function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
+
   const { getUser } = useContext(AuthContext)!;
   const navigate = useNavigate();
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -78,7 +79,11 @@ export default function Login() {
       await getUser();
 
       // ✅ Redirect and show success toast
-      navigate(ROUTES.LANDING_PAGE);
+      if (data?.data?.user?.role == "admin") {
+        navigate(ROUTES.DASHBOARD);
+      } else {
+        navigate(ROUTES.LANDING_PAGE);
+      }
       toast.success("✅ Welcome back!", { duration: 3000 });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;

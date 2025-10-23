@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -9,12 +9,18 @@ import {
   Alert,
 } from "@mui/material";
 import api from "../../utils/axios/axiosInstance"; // adjust this import path to your axios instance
+import toast from "react-hot-toast";
+import { ROUTES } from "../../service/Endpoint/Endpoint";
+import type { AxiosError } from "axios";
 
 const CheckoutForm: React.FC = () => {
+  const Navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
   const { bookingId } = useParams<{ bookingId: string }>(); // ✅ dynamic booking id from URL
-
+  const location = useLocation();
+  console.log(location);
+  const roomId = location.state;
   const [processing, setProcessing] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,13 +71,15 @@ const CheckoutForm: React.FC = () => {
 
       if (success) {
         setSucceeded(true);
-        setError(undefined);
-        console.log("✅ Payment success:", message);
+        setError(null);
+        toast.success("✅ Payment success:", message);
+        Navigate(`/${ROUTES.Rooms_Data.slice(1)}/${roomId}`);
       } else {
         throw new Error(message || "Payment failed. Please try again.");
       }
-    } catch (err: any) {
-      console.error("❌ Payment error:", err);
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error("❌ Payment error:");
       setError(
         err?.response?.data?.message ||
           err.message ||

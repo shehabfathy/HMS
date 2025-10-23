@@ -28,6 +28,7 @@ export default function Favorite() {
         }
       );
       setFavorites(data.data.favoriteRooms[0].rooms);
+
       setLoading(false);
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;

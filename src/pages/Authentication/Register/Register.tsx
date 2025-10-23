@@ -9,9 +9,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Select from "@mui/material/Select";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import React from "react";
 import FormHelperText from "@mui/material/FormHelperText";
 import {
@@ -27,10 +27,14 @@ import MenuItem from "@mui/material/MenuItem";
 // import Button from "@mui/lab/LoadingButton";
 import toast from "react-hot-toast";
 import { Button } from "@mui/material";
+
+import { ROUTES } from "../../../service/Endpoint/Endpoint";
+import { useNavigate } from "react-router-dom";
+import type { tRegister } from "../../../types/types";
 export default function Register() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-
+  const Navigate = useNavigate();
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () =>
     setShowConfirmPassword((show) => !show);
@@ -51,9 +55,9 @@ export default function Register() {
     formState: { errors, isSubmitting },
     handleSubmit,
     watch,
-  } = useForm();
+  } = useForm<tRegister>();
 
-  const onSubmit = async (value) => {
+  const onSubmit: SubmitHandler<tRegister> = async (value) => {
     try {
       const data = new FormData();
       data.append("userName", value.userName);
@@ -72,10 +76,11 @@ export default function Register() {
         data
       );
       toast.success("✅ Registered Successfully!", { duration: 3000 });
+      Navigate(ROUTES.LOGIN);
     } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
       toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
+        err.response?.data?.message || "Something went wrong. Please try again."
       );
     }
   };
