@@ -169,12 +169,9 @@ export default function Facilities_List() {
       field: "createdAt",
       headerName: "Created At",
       flex: 1,
-      // Explicitly type the params
-      valueGetter: (params: { row: TFacility }) => params.row.createdAt,
-      valueFormatter: (params: { row: TFacility }) => {
-        const value = params.row.createdAt;
-        if (!value) return "N/A";
-        const date = new Date(value);
+      valueFormatter: (params: { value: string }) => {
+        if (!params.value) return "N/A";
+        const date = new Date(params.value);
         return isNaN(date.getTime())
           ? "Invalid Date"
           : date.toLocaleString("en-US", {
